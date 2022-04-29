@@ -2,6 +2,11 @@
 
 #include <stdbool.h>
 
+enum {
+    GPIO_TX = 14,
+    GPIO_RX = 15,
+};
+
 typedef enum {
     GPIO_FUNC_INPUT = 0,
     GPIO_FUNC_OUTPUT = 1,
