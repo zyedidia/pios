@@ -1,5 +1,5 @@
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "kern.h"
 
@@ -131,11 +131,13 @@ void __ubsan_handle_pointer_overflow(src_loc_t* location,
 static bool asan = false;
 
 void asan_access(unsigned long addr, size_t sz, bool write) {
-    /* if (asan) { */
-    /*     printf("access at 0x%lx\n", addr); */
-    /* } */
+    if (!asan) {
+        return;
+    }
+
     extern char __code_start__, __code_end__;
-    if (write && addr >= (uintptr_t) &__code_start__ && addr < (uintptr_t) &__code_end__) {
+    if (write && addr >= (uintptr_t) &__code_start__ &&
+        addr < (uintptr_t) &__code_end__) {
         panic("attempt to write code segment\n");
     }
 }
@@ -172,12 +174,9 @@ void __asan_storeN_noabort(unsigned long addr, size_t sz) {
     asan_access(addr, sz, true);
 }
 
-void __asan_handle_no_return() {
-}
-void __asan_before_dynamic_init(const char* module_name) {
-}
-void __asan_after_dynamic_init() {
-}
+void __asan_handle_no_return() {}
+void __asan_before_dynamic_init(const char* module_name) {}
+void __asan_after_dynamic_init() {}
 
 void asan_enable() {
     asan = true;

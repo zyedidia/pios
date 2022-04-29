@@ -5,8 +5,8 @@
 #include "timer.h"
 #include "uart.h"
 
+#include "kmalloc.h"
 #include "ksan.h"
-#include "kalloc.h"
 
 void kernel_start();
 void reboot();
