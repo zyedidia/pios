@@ -131,13 +131,13 @@ void __ubsan_handle_pointer_overflow(src_loc_t* location,
 static bool asan = false;
 
 void asan_access(unsigned long addr, size_t sz, bool write) {
-    if (asan) {
-        printf("access at %lx\n", addr);
-    }
-    /* extern char __code_start__, __code_end__; */
-    /* if (write && addr >= (uintptr_t) &__code_start__ && addr < (uintptr_t) __code_end__) { */
-    /*     panic("attempt to write code segment\n"); */
+    /* if (asan) { */
+    /*     printf("access at 0x%lx\n", addr); */
     /* } */
+    extern char __code_start__, __code_end__;
+    if (write && addr >= (uintptr_t) &__code_start__ && addr < (uintptr_t) &__code_end__) {
+        panic("attempt to write code segment\n");
+    }
 }
 
 void __asan_load1_noabort(unsigned long addr) {

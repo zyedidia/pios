@@ -15,16 +15,19 @@ ARCH = armv6zk
 PIOS ?= $(shell git rev-parse --show-toplevel)
 
 CFLAGS = -O$(O) -g -Wall -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU) -Wa,-march=$(ARCH)
-ifeq ($(SANITIZE),1)
-	CFLAGS += -fsanitize=undefined -fsanitize=kernel-address
-endif
-
 ASFLAGS = -mcpu=$(CPU) -march=$(ARCH)
 LDFLAGS = -T $(MEMMAP)
 LDLIBS = $(LIBGCC)
+ifeq ($(SANITIZE),1)
+	ASAN_FLAGS = -fsanitize=kernel-address,undefined
+else
+	ASAN_FLAGS =
+endif
+
+$(PIOS_OBJ_NOSAN): ASAN_FLAGS :=
 
 %.o: %.c
-	$(CC) $(CFLAGS) $< -c -o $@
+	$(CC) $(CFLAGS) $(ASAN_FLAGS) $< -c -o $@
 
 %.o: %.s
 	$(CPP) $< | $(AS) $(ASFLAGS) -c -o $@

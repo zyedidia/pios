@@ -1,5 +1,5 @@
-include defs.mk
 include pios.mk
+include defs.mk
 
 O ?= s
 
