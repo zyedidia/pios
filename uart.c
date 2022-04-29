@@ -95,7 +95,7 @@ bool uart_tx_empty() {
     return bit_get(uart->stat, 9) == 1;
 }
 
-void uart_flush_tx() {
+void uart_tx_flush() {
     while (!uart_tx_empty())
         ;
 }

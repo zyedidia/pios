@@ -1,10 +1,13 @@
 #include <stdint.h>
 
-#include "pios.h"
 #include "libc/tinyprintf.h"
+#include "pios.h"
 #include "uart.h"
 
 void reboot() {
+    printf("DONE!!!\n");
+    uart_tx_flush();
+
     volatile uint32_t* PM_RSTC = (uint32_t*) 0x2010001c;
     volatile uint32_t* PM_WDOG = (uint32_t*) 0x20100024;
 
@@ -32,8 +35,5 @@ void cstart() {
     init_printf(NULL, uart_putc);
 
     kernel_start();
-
-    printf("DONE!!!\n");
-    uart_flush_tx();
     reboot();
 }

@@ -69,13 +69,13 @@ static void* boot() {
     }
     put_uint(BOOT_SUCCESS);
 
-    uart_flush_tx();
+    uart_tx_flush();
     return (void*) base;
 }
 
 void boot_start() {
     void* code = boot();
-    uart_flush_tx();
+    uart_tx_flush();
     if (code) {
         void (*main)() = (typeof(main)) code;
         main();

@@ -12,7 +12,7 @@ unsigned uart_rx_sz();
 uint8_t uart_rx();
 void uart_tx(uint8_t c);
 bool uart_tx_empty();
-void uart_flush_tx();
+void uart_tx_flush();
 
 // for tinyprintf
 void uart_putc(void* p, char c);

@@ -11,7 +11,7 @@ union align {
 typedef union free_hdr { /* block header */
     struct {
         union free_hdr* ptr; /* next block if on free list */
-        unsigned size;     /* size of this block */
+        unsigned size;       /* size of this block */
     } s;
     union align x; /* force alignment of blocks */
 } free_hdr_t;
