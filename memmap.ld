@@ -7,12 +7,16 @@ SECTIONS
         __code_end__ = .;
         . = ALIGN(8);
     }
-    .rodata : { *(.rodata*) }
+    .rodata : {
+        __rodata_start__ = .;
+        *(.rodata*)
+        __rodata_end__ = .;
+    }
     .data : { 
-            __data_start__ = .;
-            *(.data*) 
-            . = ALIGN(4);
-            __data_end__ = .;
+        __data_start__ = .;
+        *(.data*) 
+        . = ALIGN(4);
+        __data_end__ = .;
     } 
     .bss : {
         . = ALIGN(4);

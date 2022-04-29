@@ -27,8 +27,7 @@ static inline void cache_disable(void) {
     asm volatile("MCR p15, 0, %0, c1, c0, 0" ::"r"(r));
 }
 
-static inline void panic(char* msg) {
-    printf("PANIC: ");
-    printf(msg);
+#define panic(format, args...) \
+    printf("PANIC: ");         \
+    printf(format, ##args);    \
     reboot();
-}

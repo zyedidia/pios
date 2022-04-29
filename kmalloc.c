@@ -1,5 +1,7 @@
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "pios.h"
 #include "kmalloc.h"
 
 union align {
@@ -17,16 +19,17 @@ typedef union free_hdr { /* block header */
 } free_hdr_t;
 
 extern char __heap_start__;
-uintptr_t heap = (uintptr_t) &__heap_start__;
+uintptr_t heap_end = (uintptr_t) &__heap_start__;
 
 static inline uintptr_t align(uintptr_t ptr, size_t align) {
     return ((~ptr) + 1) & (align - 1);
 }
 
 static void* sbrk(size_t size) {
-    heap += size;
-    heap += align(heap, __alignof__(free_hdr_t));
-    return (void*) heap;
+    void* ret = (void*) heap_end;
+    heap_end += size;
+    heap_end += align(heap_end, __alignof__(free_hdr_t));
+    return ret;
 }
 
 static free_hdr_t base;          /* empty list to get started */
@@ -96,6 +99,8 @@ static void kr_free(void* ap) {
     freep = p;
 }
 
+#if (SANITIZE == 0)
+
 void* kmalloc(size_t sz) {
     return kr_malloc(sz);
 }
@@ -103,3 +108,126 @@ void* kmalloc(size_t sz) {
 void kfree(void* p) {
     kr_free(p);
 }
+
+#else
+
+typedef struct asan_hdr {
+    size_t size;
+    struct asan_hdr* next;
+    struct asan_hdr* prev;
+} asan_hdr_t;
+
+static asan_hdr_t* alloc_list;
+
+static void ll_insert(asan_hdr_t* n) {
+    n->next = alloc_list;
+    n->prev = NULL;
+    if (alloc_list)
+        alloc_list->prev = n;
+    alloc_list = n;
+}
+
+static void ll_remove(asan_hdr_t* n) {
+    if (n->next)
+        n->next->prev = n->prev;
+    if (n->prev)
+        n->prev->next = n->next;
+    else
+        alloc_list = n->next;
+}
+
+static char* blk_start(asan_hdr_t* h) {
+    return (char*) h + sizeof(asan_hdr_t);
+}
+
+static char* blk_end(asan_hdr_t* h) {
+    return (char*) h + sizeof(asan_hdr_t) + h->size;
+}
+
+void* kmalloc(size_t sz) {
+    asan_hdr_t* h = (asan_hdr_t*) kr_malloc(sz + sizeof(asan_hdr_t));
+    h->size = sz;
+    ll_insert(h);
+    return (void*) blk_start(h);
+}
+
+void kfree(void* p) {
+    asan_hdr_t* h = (asan_hdr_t*) ((char*) p - sizeof(asan_hdr_t));
+    ll_remove(h);
+    kr_free(h);
+}
+
+static bool asan = false;
+
+static bool in_range(char* addr, char* start, char* end) {
+    return addr >= start && addr < end;
+}
+
+void asan_access(unsigned long addr, size_t sz, bool write) {
+    if (!asan) {
+        return;
+    }
+
+    extern char __code_start__, __code_end__;
+    if (write && in_range((char*) addr, &__code_start__, &__code_end__)) {
+        panic("write to code segment: 0x%lx\n", addr);
+    }
+    extern char __rodata_start__, __rodata_end__;
+    if (write && in_range((char*) addr, &__rodata_start__, &__rodata_end__)) {
+        panic("write to read-only data segment: 0x%lx\n", addr);
+    }
+    extern char __heap_start__;
+    extern uintptr_t heap_end;
+    if (in_range((char*) addr, &__heap_start__, (char*) heap_end)) {
+        asan_hdr_t* h = alloc_list;
+        while (h) {
+            if (in_range((char*) addr, blk_start(h), blk_end(h))) {
+                return;
+            }
+            h = h->next;
+        }
+        panic("illegal heap memory access: 0x%lx\n", addr);
+    }
+}
+
+void __asan_load1_noabort(unsigned long addr) {
+    asan_access(addr, 1, false);
+}
+void __asan_load2_noabort(unsigned long addr) {
+    asan_access(addr, 2, false);
+}
+void __asan_load4_noabort(unsigned long addr) {
+    asan_access(addr, 4, false);
+}
+void __asan_load8_noabort(unsigned long addr) {
+    asan_access(addr, 8, false);
+}
+void __asan_loadN_noabort(unsigned long addr, size_t sz) {
+    asan_access(addr, sz, false);
+}
+
+void __asan_store1_noabort(unsigned long addr) {
+    asan_access(addr, 1, true);
+}
+void __asan_store2_noabort(unsigned long addr) {
+    asan_access(addr, 2, true);
+}
+void __asan_store4_noabort(unsigned long addr) {
+    asan_access(addr, 4, true);
+}
+void __asan_store8_noabort(unsigned long addr) {
+    asan_access(addr, 8, true);
+}
+void __asan_storeN_noabort(unsigned long addr, size_t sz) {
+    asan_access(addr, sz, true);
+}
+
+void __asan_handle_no_return() {}
+void __asan_before_dynamic_init(const char* module_name) {}
+void __asan_after_dynamic_init() {}
+
+void asan_enable() {
+    asan = true;
+}
+
+#endif
