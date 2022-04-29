@@ -5,5 +5,7 @@
 #include "gpio.h"
 #include "timer.h"
 
+#include "kalloc.h"
+
 void kernel_start();
 void reboot();
