@@ -68,7 +68,7 @@ uint8_t uart_getc() {
     return c;
 }
 
-void uart_putc(uint8_t c) {
+void uart_putc(void* p, char c) {
     dev_barrier();
     while (!uart_can_putc())
         ;

@@ -21,8 +21,8 @@ LDLIBS = $(LIBGCC)
 
 KERN=pios
 
-CSRC = $(wildcard *.c)
-HSRC = $(wildcard *.h)
+CSRC = $(wildcard *.c) $(wildcard libc/*.c)
+HSRC = $(wildcard *.h) $(wildcard libc/*.h)
 SSRC = $(wildcard *.s)
 
 OBJ = $(CSRC:.c=.o) $(SSRC:.s=.o)
