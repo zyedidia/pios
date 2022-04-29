@@ -16,7 +16,7 @@ PIOS ?= $(shell git rev-parse --show-toplevel)
 
 CFLAGS = -O$(O) -g -Wall -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU) -Wa,-march=$(ARCH)
 ifeq ($(SANITIZE),1)
-	CFLAGS += -fsanitize=undefined
+	CFLAGS += -fsanitize=undefined -fsanitize=kernel-address
 endif
 
 ASFLAGS = -mcpu=$(CPU) -march=$(ARCH)

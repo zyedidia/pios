@@ -5,6 +5,7 @@
 #include "timer.h"
 #include "uart.h"
 
+#include "ksan.h"
 #include "kalloc.h"
 
 void kernel_start();

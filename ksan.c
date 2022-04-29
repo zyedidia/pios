@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "kern.h"
 
@@ -125,4 +126,59 @@ void __ubsan_handle_pointer_overflow(src_loc_t* location,
                                      uintptr_t base,
                                      uintptr_t result) {
     panic("pointer overflow\n");
+}
+
+static bool asan = false;
+
+void asan_access(unsigned long addr, size_t sz, bool write) {
+    if (asan) {
+        printf("access at %lx\n", addr);
+    }
+    /* extern char __code_start__, __code_end__; */
+    /* if (write && addr >= (uintptr_t) &__code_start__ && addr < (uintptr_t) __code_end__) { */
+    /*     panic("attempt to write code segment\n"); */
+    /* } */
+}
+
+void __asan_load1_noabort(unsigned long addr) {
+    asan_access(addr, 1, false);
+}
+void __asan_load2_noabort(unsigned long addr) {
+    asan_access(addr, 2, false);
+}
+void __asan_load4_noabort(unsigned long addr) {
+    asan_access(addr, 4, false);
+}
+void __asan_load8_noabort(unsigned long addr) {
+    asan_access(addr, 8, false);
+}
+void __asan_loadN_noabort(unsigned long addr, size_t sz) {
+    asan_access(addr, sz, false);
+}
+
+void __asan_store1_noabort(unsigned long addr) {
+    asan_access(addr, 1, true);
+}
+void __asan_store2_noabort(unsigned long addr) {
+    asan_access(addr, 2, true);
+}
+void __asan_store4_noabort(unsigned long addr) {
+    asan_access(addr, 4, true);
+}
+void __asan_store8_noabort(unsigned long addr) {
+    asan_access(addr, 8, true);
+}
+void __asan_storeN_noabort(unsigned long addr, size_t sz) {
+    asan_access(addr, sz, true);
+}
+
+void __asan_handle_no_return() {
+}
+void __asan_before_dynamic_init(const char* module_name) {
+}
+void __asan_after_dynamic_init() {
+}
+
+void asan_enable() {
+    asan = true;
 }
