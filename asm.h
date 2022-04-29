@@ -14,5 +14,3 @@
 #define ABORT_MODE 0b10111
 #define UNDEF_MODE 0b11011
 #define SYS_MODE 0b11111
-
-#define SYS_CLK_MHZ 700

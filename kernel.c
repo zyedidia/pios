@@ -9,5 +9,7 @@ static void device_init() {
 void kernel_start() {
     device_init();
 
+    printf("kernel booted!\n");
+
     return;
 }
