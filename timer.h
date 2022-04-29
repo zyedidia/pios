@@ -3,7 +3,7 @@
 #include "sys.h"
 
 static inline void timer_init() {
-    asm volatile("mcr p15, 0, %0, c15, c12, 0" :: "r"(1));
+    asm volatile("mcr p15, 0, %0, c15, c12, 0" ::"r"(1));
 }
 
 static inline unsigned timer_cycles() {

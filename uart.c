@@ -1,10 +1,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "bits.h"
 #include "dev.h"
 #include "gpio.h"
 #include "uart.h"
-#include "bits.h"
 
 typedef struct {
     uint32_t io;
@@ -96,6 +96,6 @@ bool uart_tx_empty() {
 }
 
 void uart_flush_tx() {
-    while(!uart_tx_empty())
+    while (!uart_tx_empty())
         ;
 }

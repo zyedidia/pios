@@ -1,8 +1,8 @@
 #include <stdint.h>
 
+#include "kern.h"
 #include "libc/tinyprintf.h"
 #include "uart.h"
-#include "kern.h"
 
 void reboot() {
     volatile uint32_t* PM_RSTC = (uint32_t*) 0x2010001c;
