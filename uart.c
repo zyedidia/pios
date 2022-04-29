@@ -52,32 +52,41 @@ void uart_init(unsigned baud) {
     dev_barrier();
 }
 
-bool uart_can_getc() {
-    return (uart->stat & 0b01) != 0;
+bool uart_rx_empty() {
+    return bit_get(uart->stat, 0) == 0;
 }
 
-bool uart_can_putc() {
-    return (uart->stat & 0b10) != 0;
+unsigned uart_rx_sz() {
+    return bits_get(uart->stat, 16, 19);
 }
 
-uint8_t uart_getc() {
+bool uart_can_tx() {
+    return bit_get(uart->stat, 1) != 0;
+}
+
+uint8_t uart_rx() {
     dev_barrier();
-    while (!uart_can_getc())
+    while (uart_rx_empty())
         ;
     uint8_t c = uart->io & 0xff;
     dev_barrier();
     return c;
 }
 
-void uart_putc(void* p, char c) {
+void uart_tx(uint8_t c) {
     dev_barrier();
-    while (!uart_can_putc())
+    while (!uart_can_tx())
         ;
     uart->io = c & 0xff;
     dev_barrier();
 }
 
-bool uart_tx_is_empty() {
+void uart_putc(void* p, char c) {
+    (void) p;
+    uart_tx(c);
+}
+
+bool uart_tx_empty() {
     dev_barrier();
 
     // broadcom p 18: "This bit (9) is set if the transmitter is idle and the
@@ -87,6 +96,6 @@ bool uart_tx_is_empty() {
 }
 
 void uart_flush_tx() {
-    while(!uart_tx_is_empty())
+    while(!uart_tx_empty())
         ;
 }

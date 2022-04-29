@@ -1,10 +1,12 @@
 SECTIONS
 {
-    .text 0x8000 :  { 
-        __code_start__ = .;
-        KEEP(*(.boot))  
+    .boot 0x8000 : {
+        KEEP(*(.boot))
+        . = ALIGN(8);
+    }
+
+    .text 0x10000 :  { 
         *(.text*) 
-        __code_end__ = .;
         . = ALIGN(8);
     }
     .rodata : { *(.rodata*) }

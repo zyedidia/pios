@@ -1,7 +1,5 @@
 #include <stdint.h>
 
-#include "libc/tinyprintf.h"
-#include "uart.h"
 #include "kern.h"
 
 void reboot() {
@@ -17,6 +15,8 @@ void reboot() {
         ;
 }
 
+void boot_start();
+
 void cstart() {
     extern int __bss_start__, __bss_end__;
 
@@ -29,11 +29,5 @@ void cstart() {
 
     timer_init();
     uart_init(115200);
-    init_printf(NULL, uart_putc);
-
-    kernel_start();
-
-    printf("DONE!!!\n");
-    uart_flush_tx();
-    reboot();
+    boot_start();
 }
