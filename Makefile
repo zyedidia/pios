@@ -7,6 +7,8 @@ CPP = $(PREFIX)-cpp
 OBJCOPY = $(PREFIX)-objcopy
 OBJDUMP = $(PREFIX)-objdump
 
+LIBGCC = $(shell $(CC) --print-file-name=libgcc.a)
+
 CPU = arm1176jzf-s
 ARCH = armv6zk
 
@@ -15,6 +17,7 @@ O ?= s
 CFLAGS = -O$(O) -g -Wall -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU) -Wa,-march=$(ARCH)
 ASFLAGS = -mcpu=$(CPU) -march=$(ARCH)
 LDFLAGS = -T $(MEMMAP)
+LDLIBS = $(LIBGCC)
 
 KERN=pios
 
