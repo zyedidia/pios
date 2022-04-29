@@ -4,6 +4,7 @@
 #include "dev.h"
 #include "gpio.h"
 #include "uart.h"
+#include "bits.h"
 
 typedef struct {
     uint32_t io;
@@ -74,4 +75,18 @@ void uart_putc(void* p, char c) {
         ;
     uart->io = c & 0xff;
     dev_barrier();
+}
+
+bool uart_tx_is_empty() {
+    dev_barrier();
+
+    // broadcom p 18: "This bit (9) is set if the transmitter is idle and the
+    // transmit FIFO is empty."
+    // transmitter done: idle and empty
+    return bit_get(uart->stat, 9) == 1;
+}
+
+void uart_flush_tx() {
+    while(!uart_tx_is_empty())
+        ;
 }

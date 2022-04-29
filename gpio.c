@@ -53,5 +53,5 @@ void gpio_write(unsigned pin, bool v) {
 bool gpio_read(unsigned pin) {
     if (pin >= 32)
         return false;
-    return (gpio_lev[pin / 32] >> (pin % 32)) & 1;
+    return (gpio_lev[0] >> pin) & 1;
 }

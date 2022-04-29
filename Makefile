@@ -29,6 +29,9 @@ OBJ = $(CSRC:.c=.o) $(SSRC:.s=.o)
 
 all: $(KERN).bin
 
+install: $(KERN).bin
+	pi-install $(KERN).bin
+
 $(KERN).elf: $(OBJ)
 	$(LD) $(LDFLAGS) $(OBJ) $(LDLIBS) -o $@
 
@@ -50,4 +53,4 @@ format:
 clean:
 	rm -f *.list *.o $(KERN).elf $(KERN).bin
 
-.PHONY: format all
+.PHONY: format all install

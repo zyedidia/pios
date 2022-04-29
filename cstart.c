@@ -1,6 +1,8 @@
 #include <stdint.h>
 
-#include "kernel.h"
+#include "libc/tinyprintf.h"
+#include "uart.h"
+#include "kern.h"
 
 void reboot() {
     volatile uint32_t* PM_RSTC = (uint32_t*) 0x2010001c;
@@ -25,6 +27,12 @@ void cstart() {
         *bss++ = 0;
     }
 
+    uart_init(115200);
+    init_printf(NULL, uart_putc);
+
     kernel_start();
+
+    printf("DONE!!!\n");
+    uart_flush_tx();
     reboot();
 }
