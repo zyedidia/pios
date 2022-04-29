@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#include "kern.h"
+#include "pios.h"
 
 void reboot() {
     volatile uint32_t* PM_RSTC = (uint32_t*) 0x2010001c;

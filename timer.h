@@ -12,12 +12,11 @@ static inline unsigned timer_cycles() {
     return cyc;
 }
 
-static inline void delay_cycles(unsigned cycles) {
-    unsigned rb = timer_cycles();
+static inline unsigned delay_ncycles(unsigned rb, unsigned n) {
     while (1) {
         unsigned ra = timer_cycles();
-        if ((ra - rb) >= cycles) {
-            break;
+        if ((ra - rb) >= n) {
+            return ra;
         }
     }
 }

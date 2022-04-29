@@ -1,4 +1,4 @@
-#include "kern.h"
+#include "pios.h"
 #include "timer.h"
 #include "crc32.h"
 

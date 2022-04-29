@@ -1,7 +1,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "kern.h"
+#include "pios.h"
+
+#if (SANITIZE == 1)
 
 typedef struct {
     const char* file;
@@ -181,3 +183,5 @@ void __asan_after_dynamic_init() {}
 void asan_enable() {
     asan = true;
 }
+
+#endif

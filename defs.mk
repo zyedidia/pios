@@ -18,13 +18,14 @@ CFLAGS = -O$(O) -g -Wall -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU)
 ASFLAGS = -mcpu=$(CPU) -march=$(ARCH)
 LDFLAGS = -T $(MEMMAP)
 LDLIBS = $(LIBGCC)
+SANITIZE ?= 0
 ifeq ($(SANITIZE),1)
-	ASAN_FLAGS = -fsanitize=kernel-address,undefined
+	ASAN_FLAGS = -fsanitize=kernel-address,undefined -DSANITIZE=1
 else
-	ASAN_FLAGS =
+	ASAN_FLAGS = -DSANITIZE=0
 endif
 
-$(PIOS_OBJ_NOSAN): ASAN_FLAGS :=
+$(PIOS_OBJ_NOSAN): ASAN_FLAGS := -DSANITIZE=$(SANITIZE)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(ASAN_FLAGS) $< -c -o $@

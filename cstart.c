@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#include "kern.h"
+#include "pios.h"
 #include "libc/tinyprintf.h"
 #include "uart.h"
 
