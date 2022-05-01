@@ -2,5 +2,6 @@
 *.bin
 *.list
 *.elf
+*.so
 /boot/firmware
 trace.txt
