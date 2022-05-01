@@ -48,7 +48,7 @@ static void handle_overflow(overflow_t* data,
                             unsigned long lhs,
                             unsigned long rhs,
                             char op) {
-    printf("%s:%lu: integer overflow\n", data->loc.file, data->loc.line);
+    panic("%s:%lu: integer overflow\n", data->loc.file, data->loc.line);
 }
 
 void __ubsan_handle_add_overflow(overflow_t* data,

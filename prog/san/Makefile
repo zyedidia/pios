@@ -4,29 +4,30 @@ include ../../pios.mk
 include ../../defs.mk
 
 O ?= s
+TEST ?= 1
+TESTS = 1 2 3 4 5 6
+PROGS = $(addprefix test-,$(TESTS))
 
-PROG = san
-
-CSRC = $(wildcard *.c)
-HSRC = $(wildcard *.h)
-
-OBJ = $(CSRC:.c=.o) $(PIOS_OBJ)
+SRC = san.c
 
 CFLAGS += -I$(PIOS)
 
-all: $(PROG).bin
+all: $(addsuffix .bin,$(PROGS))
 
-install: $(PROG).bin
+install: test-$(TEST).bin
 	pi-install $<
 
-$(PROG).elf: $(OBJ)
+san-%.o: $(SRC)
+	$(CC) $(CFLAGS) -DTEST=$* $(ASAN_FLAGS) $< -c -o $@
+
+test-%.elf: $(PIOS_OBJ) san-%.o
 	$(LD) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 clean:
-	rm -f *.list *.o $(PROG).elf $(PROG).bin
+	rm -f *.list *.o *.elf *.bin
 
 format:
-	clang-format -i $(CSRC) $(HSRC)
+	clang-format -i $(SRC)
 
 .PHONY: format clean all install
 
