@@ -3,3 +3,4 @@
 *.list
 *.elf
 /boot/firmware
+trace.txt

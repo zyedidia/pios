@@ -26,5 +26,7 @@ clean:
 format:
 	clang-format -i $(CSRC) $(HSRC)
 
-.PHONY: format clean all install
+qemu: $(PROG).elf
+	qemu-system-arm -M raspi1ap -nographic -d nochain,in_asm -D trace.txt  -kernel $< -serial null -serial mon:stdio
 
+.PHONY: format clean all install qemu
