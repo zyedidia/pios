@@ -29,9 +29,9 @@ static void vcpu_mem(unsigned int cpu_index, qemu_plugin_meminfo_t info,
     /* g_string_append_printf(s, "%lx: ", insn_vaddr); */
 
     if (qemu_plugin_mem_is_store(info)) {
-        g_string_append(s, "str: ");
+        g_string_append(s, "st: ");
     } else {
-        g_string_append(s, "ldr: ");
+        g_string_append(s, "ld: ");
     }
 
     /* If full system emulation log physical address and device name */
