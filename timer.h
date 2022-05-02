@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include "sys.h"
 
 static inline void timer_init() {
@@ -34,3 +35,5 @@ static inline void delay_us(unsigned us) {
 static inline void delay_ms(unsigned ms) {
     delay_us(ms * 1000);
 }
+
+void timer_irq_load(uint32_t load);
