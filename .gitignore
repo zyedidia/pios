@@ -3,5 +3,8 @@
 *.list
 *.elf
 *.so
+*.vcd
 /boot/firmware
 trace.txt
+tools/piprog/piprog
+tools/vcd/vcd

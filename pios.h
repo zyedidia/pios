@@ -1,10 +1,10 @@
 #pragma once
 
+#include "bits.h"
 #include "gpio.h"
 #include "libc/tinyprintf.h"
 #include "timer.h"
 #include "uart.h"
-
 #include "kmalloc.h"
 #include "ksan.h"
 

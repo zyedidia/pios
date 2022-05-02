@@ -11,7 +11,7 @@ void gpio_set_func(unsigned pin, gpio_func_t fn) {
     unsigned off = (pin % 10) * 3;
     unsigned idx = pin / 10;
 
-    unsigned v = gpio_fsel[idx];
+    uint32_t v = gpio_fsel[idx];
     v &= ~(0b111 << off);
     v |= fn << off;
     gpio_fsel[idx] = v;

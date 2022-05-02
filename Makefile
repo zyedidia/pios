@@ -3,15 +3,7 @@ include defs.mk
 
 O ?= s
 
-KERN = pios
-
-all: $(KERN).bin
-
-install: $(KERN).bin
-	pi-install $(KERN).bin
-
-$(KERN).elf: $(PIOS_OBJ)
-	$(LD) $(LDFLAGS) $^ $(LDLIBS) -o $@
+all: $(PIOS_OBJ)
 
 clean:
 	rm -f *.list *.o $(KERN).elf $(KERN).bin
