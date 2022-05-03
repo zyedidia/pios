@@ -29,4 +29,8 @@ format:
 qemu: $(PROG).elf
 	$(QEMU) -M $(BOARD) -nographic -kernel $< -serial null -serial mon:stdio -no-reboot
 
+qemu-gdb: $(PROG).elf
+	$(QEMU) -s -S -M $(BOARD) -nographic -kernel $< -serial null -serial mon:stdio -no-reboot &
+	$(GDB) -x start.gdb
+
 .PHONY: format clean all install qemu

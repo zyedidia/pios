@@ -9,6 +9,7 @@ OBJDUMP = $(PREFIX)-objdump
 
 QEMU = qemu-system-arm
 BOARD = raspi1ap
+GDB = gdb-multiarch
 
 LIBGCC = $(shell $(CC) --print-file-name=libgcc.a)
 
