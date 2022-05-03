@@ -27,6 +27,6 @@ format:
 	clang-format -i $(CSRC) $(HSRC)
 
 qemu: $(PROG).elf
-	qemu-system-arm -M raspi1ap -plugin $(PIOS)/plugin/memtrace/libmemtrace.so -nographic -d plugin -D trace.txt -kernel $< -serial null -serial mon:stdio -no-reboot
+	$(QEMU) -M $(BOARD) -nographic -kernel $< -serial null -serial mon:stdio -no-reboot
 
 .PHONY: format clean all install qemu
