@@ -1,4 +1,4 @@
-#include "interrupts.h"
+#include "pios.h"
 
 typedef struct {
     uint32_t irq_basic_pending;
@@ -13,17 +13,35 @@ typedef struct {
     uint32_t disable_basic_irqs;
 } irq_ctrl_t;
 
-#define IRQ_CTRL_BASE 0x2020B200
-
-static volatile irq_ctrl_t* const irq_ctrl = (irq_ctrl_t*) 0x2020B200;
+static volatile irq_ctrl_t* const irq_ctrl = (irq_ctrl_t*) 0x2000B200;
 
 void irq_enable(uint32_t val) {
     irq_ctrl->enable_basic_irqs = val;
 }
 
-void __attribute__((interrupt("UNDEF"))) vec_undef_insn() {}
-void __attribute__((interrupt("SWI"))) vec_software_irq() {}
-void __attribute__((interrupt("ABORT"))) vec_prefetch_abort() {}
-void __attribute__((interrupt("ABORT"))) vec_data_abort() {}
-void __attribute__((interrupt("IRQ"))) vec_irq() {}
-void __attribute__((interrupt("FIQ"))) vec_fiq() {}
+static volatile uintptr_t* const irq_tbl = (uintptr_t*) (0x0000 + 8 * 4);
+
+void register_irq_vec(irq_vec_t vec, void (*fn)()) {
+    irq_tbl[vec] = (uintptr_t) fn;
+}
+
+#define panic_unhandled(msg) panic("unhandled interrupt: %s\n", msg)
+
+void __attribute__((interrupt("UNDEF"))) vec_undef_insn() {
+    panic_unhandled("undef_insn");
+}
+void __attribute__((interrupt("SWI"))) vec_software_irq() {
+    panic_unhandled("software_irq");
+}
+void __attribute__((interrupt("ABORT"))) vec_prefetch_abort() {
+    panic_unhandled("prefetch_abort");
+}
+void __attribute__((interrupt("ABORT"))) vec_data_abort() {
+    panic_unhandled("data_abort");
+}
+void __attribute__((interrupt("IRQ"))) vec_irq() {
+    panic_unhandled("irq");
+}
+void __attribute__((interrupt("FIQ"))) vec_fiq() {
+    panic_unhandled("fiq");
+}

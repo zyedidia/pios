@@ -1,6 +1,6 @@
 #include "asm.h"
 
-.section "..boot"
+.section ".boot"
 
 .globl _start
 _start:

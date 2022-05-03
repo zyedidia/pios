@@ -10,11 +10,6 @@ void kernel_start() {
 #endif
     cache_enable();
 
-    irq_enable(BASIC_TIMER_IRQ);
-    timer_irq_load(0x400);
-
-    _enable_interrupts();
-
     main();
     return;
 }

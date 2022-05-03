@@ -12,3 +12,17 @@
 #define BASIC_ACCESS_ERROR_0_IRQ (1 << 7)
 
 void irq_enable(uint32_t val);
+
+typedef enum {
+    IRQ_VEC_RESET,
+    IRQ_VEC_UNDEF_INSN,
+    IRQ_VEC_PREFETCH_ABORT,
+    IRQ_VEC_DATA_ABORT,
+    IRQ_VEC_UNUSED,
+    IRQ_VEC_IRQ,
+    IRQ_VEC_FIQ,
+} irq_vec_t;
+
+void register_irq_vec(irq_vec_t vec, void (*fn)());
+
+void enable_interrupts();

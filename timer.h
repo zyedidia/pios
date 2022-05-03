@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
+
 #include "sys.h"
 
 static inline void timer_init() {
@@ -37,3 +39,5 @@ static inline void delay_ms(unsigned ms) {
 }
 
 void timer_irq_load(uint32_t load);
+bool timer_has_irq();
+void timer_clear_irq();
