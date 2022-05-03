@@ -12,8 +12,8 @@ void __attribute((interrupt("IRQ"))) irq() {
 int main() {
     gpio_set_output(21);
 
-    timer_irq_load(0x2000);
-    register_irq_vec(IRQ_VEC_IRQ, irq);
+    timer_irq_load(0x400);
+    register_irq_vec(IRQ_VEC_IRQ, (uintptr_t) irq);
     irq_enable(BASIC_TIMER_IRQ);
 
     enable_interrupts();
