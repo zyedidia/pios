@@ -29,5 +29,8 @@ clean:
 format:
 	clang-format -i $(SRC)
 
+qemu: test-$(TEST).elf
+	$(QEMU) -M $(BOARD) -nographic -kernel $< -serial null -serial mon:stdio -no-reboot
+
 .PHONY: format clean all install
 

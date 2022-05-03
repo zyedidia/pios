@@ -7,6 +7,9 @@ CPP = $(PREFIX)-cpp
 OBJCOPY = $(PREFIX)-objcopy
 OBJDUMP = $(PREFIX)-objdump
 
+QEMU = qemu-system-arm
+BOARD = raspi1ap
+
 LIBGCC = $(shell $(CC) --print-file-name=libgcc.a)
 
 CPU = arm1176jzf-s

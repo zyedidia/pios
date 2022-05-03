@@ -3,7 +3,7 @@ include ../../defs.mk
 
 O ?= s
 
-PROG = hello
+PROG = irq
 
 CSRC = $(wildcard *.c)
 HSRC = $(wildcard *.h)
@@ -27,6 +27,6 @@ format:
 	clang-format -i $(CSRC) $(HSRC)
 
 qemu: $(PROG).elf
-	$(QEMU) -M $(BOARD) -nographic -kernel $< -serial null -serial mon:stdio -no-reboot
+	qemu-system-arm -M raspi1ap -plugin $(PIOS)/plugin/memtrace/libmemtrace.so -nographic -d plugin -D trace.txt -kernel $< -serial null -serial mon:stdio -no-reboot
 
 .PHONY: format clean all install qemu
