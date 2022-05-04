@@ -12,7 +12,7 @@ SRC = san.c
 
 CFLAGS += -I$(PIOS)
 
-all: $(addsuffix .bin,$(PROGS))
+all: $(addsuffix .bin,$(PROGS)) $(addsuffix .elf,$(PROGS))
 
 install: test-$(TEST).bin
 	pi-install $<

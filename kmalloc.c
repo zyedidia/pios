@@ -163,7 +163,7 @@ static bool in_range(char* addr, char* start, char* end) {
     return addr >= start && addr < end;
 }
 
-void asan_access(unsigned long addr, size_t sz, bool write) {
+static void asan_access(unsigned long addr, size_t sz, bool write) {
     if (!asan) {
         return;
     }
