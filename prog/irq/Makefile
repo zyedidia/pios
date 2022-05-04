@@ -27,6 +27,10 @@ format:
 	clang-format -i $(CSRC) $(HSRC)
 
 qemu: $(PROG).elf
-	qemu-system-arm -M raspi1ap -plugin $(PIOS)/plugin/memtrace/libmemtrace.so -nographic -d plugin -D trace.txt -kernel $< -serial null -serial mon:stdio -no-reboot
+	$(QEMU) -M $(BOARD) -nographic -kernel $< -serial null -serial mon:stdio -no-reboot
+
+qemu-gdb: $(PROG).elf
+	$(QEMU) -s -S -M $(BOARD) -nographic -kernel $< -serial null -serial mon:stdio -no-reboot &
+	$(GDB) -ex "file $(PROG).elf" -ex "target remote localhost:1234"
 
 .PHONY: format clean all install qemu

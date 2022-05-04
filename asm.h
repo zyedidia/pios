@@ -5,6 +5,7 @@
     mcr p15, 0, reg, c7, c5, 4
 
 #define STACK_ADDR 0x8000000
+#define INT_STACK_ADDR 0x9000000
 
 // from A2-2
 #define USER_MODE 0b10000

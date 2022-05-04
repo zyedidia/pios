@@ -14,17 +14,16 @@
 void irq_enable(uint32_t val);
 
 typedef enum {
-    IRQ_VEC_RESET,
     IRQ_VEC_UNDEF_INSN,
     IRQ_VEC_SOFTWARE_IRQ,
     IRQ_VEC_PREFETCH_ABORT,
     IRQ_VEC_DATA_ABORT,
-    IRQ_VEC_UNUSED,
     IRQ_VEC_IRQ,
     IRQ_VEC_FIQ,
 } irq_vec_t;
 
 void register_irq_vec(irq_vec_t vec, uintptr_t fn);
-uintptr_t get_irq_vec(irq_vec_t vec);
 
+void irq_init();
 void enable_interrupts();
+bool irq_basic_pending();

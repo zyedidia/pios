@@ -31,6 +31,6 @@ qemu: $(PROG).elf
 
 qemu-gdb: $(PROG).elf
 	$(QEMU) -s -S -M $(BOARD) -nographic -kernel $< -serial null -serial mon:stdio -no-reboot &
-	$(GDB) -x start.gdb
+	$(GDB) -ex "file $(PROG).elf" -ex "target remote localhost:1234"
 
 .PHONY: format clean all install qemu
