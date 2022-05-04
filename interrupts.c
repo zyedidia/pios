@@ -16,8 +16,28 @@ typedef struct {
 
 static volatile irq_ctrl_t* const irq_ctrl = (irq_ctrl_t*) 0x2000B200;
 
-void irq_enable(uint32_t val) {
-    irq_ctrl->enable_basic_irqs = val;
+void irq_enable_basic(uint32_t irq) {
+    irq_ctrl->enable_basic_irqs = bit_set(irq_ctrl->enable_basic_irqs, irq);
+}
+
+void irq_enable(uint32_t irq) {
+    if (irq < 32) {
+        irq_ctrl->enable_irqs_1 = bit_set(irq_ctrl->enable_irqs_1, irq);
+    } else if (irq < 64) {
+        irq_ctrl->enable_irqs_1 = bit_set(irq_ctrl->enable_irqs_2, irq-32);
+    }
+}
+
+void irq_disable_basic(uint32_t irq) {
+    irq_ctrl->disable_basic_irqs = bit_set(irq_ctrl->disable_basic_irqs, irq);
+}
+
+void irq_disable(uint32_t irq) {
+    if (irq < 32) {
+        irq_ctrl->disable_irqs_1 = bit_set(irq_ctrl->disable_irqs_1, irq);
+    } else if (irq < 64) {
+        irq_ctrl->disable_irqs_1 = bit_set(irq_ctrl->disable_irqs_2, irq-32);
+    }
 }
 
 bool irq_basic_pending() {
@@ -25,7 +45,7 @@ bool irq_basic_pending() {
 }
 
 #define IRQ_VECTOR_START 0
-void irq_init() {
+void irq_init_table() {
     irq_ctrl->disable_irqs_1 = 0xffffffff;
     irq_ctrl->disable_irqs_2 = 0xffffffff;
     dev_barrier();

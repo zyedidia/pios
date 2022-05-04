@@ -52,3 +52,22 @@ static inline void gpio_write_fast(unsigned pin, bool v) {
 static inline bool gpio_read_fast(unsigned pin) {
     return (gpio_lev[0] >> pin) & 1;
 }
+
+void gpio_set_pullup(unsigned pin);
+void gpio_set_pulldown(unsigned pin);
+void gpio_pud_off(unsigned pin);
+
+enum {
+    GPIO_INT0 = 49,
+    GPIO_INT1,
+    GPIO_INT2,
+    GPIO_INT3,
+};
+
+int is_gpio_int(unsigned gpio_int);
+void gpio_int_rise(unsigned pin);
+void gpio_int_fall(unsigned pin);
+void gpio_int_rise_async(unsigned pin);
+void gpio_int_fall_async(unsigned pin);
+int gpio_event_detect(unsigned pin);
+void gpio_event_clear(unsigned pin);
