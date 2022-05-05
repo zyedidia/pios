@@ -24,7 +24,7 @@ void irq_enable(uint32_t irq) {
     if (irq < 32) {
         irq_ctrl->enable_irqs_1 = bit_set(irq_ctrl->enable_irqs_1, irq);
     } else if (irq < 64) {
-        irq_ctrl->enable_irqs_1 = bit_set(irq_ctrl->enable_irqs_2, irq-32);
+        irq_ctrl->enable_irqs_2 = bit_set(irq_ctrl->enable_irqs_2, irq-32);
     }
 }
 
@@ -36,12 +36,21 @@ void irq_disable(uint32_t irq) {
     if (irq < 32) {
         irq_ctrl->disable_irqs_1 = bit_set(irq_ctrl->disable_irqs_1, irq);
     } else if (irq < 64) {
-        irq_ctrl->disable_irqs_1 = bit_set(irq_ctrl->disable_irqs_2, irq-32);
+        irq_ctrl->disable_irqs_2 = bit_set(irq_ctrl->disable_irqs_2, irq-32);
     }
 }
 
-bool irq_basic_pending() {
-    return irq_ctrl->irq_basic_pending;
+bool irq_basic_pending(uint32_t irq) {
+    return bit_get(irq_ctrl->irq_basic_pending, irq);
+}
+
+bool irq_pending(uint32_t irq) {
+    if (irq < 32) {
+        return bit_get(irq_ctrl->irq_pending_1, irq);
+    } else if (irq < 64) {
+        return bit_get(irq_ctrl->irq_pending_2, irq-32);
+    }
+    return false;
 }
 
 #define IRQ_VECTOR_START 0

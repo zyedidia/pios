@@ -15,6 +15,7 @@ void __attribute((interrupt("IRQ"))) irq() {
     dev_barrier();
 
     timer_clear_irq();
+
     dev_barrier();
 }
 

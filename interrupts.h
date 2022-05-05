@@ -30,4 +30,5 @@ void register_irq_vec(irq_vec_t vec, uintptr_t fn);
 void irq_init_table();
 void enable_interrupts();
 void disable_interrupts();
-bool irq_basic_pending();
+bool irq_basic_pending(uint32_t irq);
+bool irq_pending(uint32_t irq);
