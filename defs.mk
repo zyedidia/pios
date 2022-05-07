@@ -17,6 +17,7 @@ CPU = arm1176jzf-s
 ARCH = armv6zk
 
 PIOS ?= $(shell git rev-parse --show-toplevel)
+BUILDDIR = $(PIOS)/build
 
 CFLAGS = -O$(O) -g -Wall -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU) -Wa,-march=$(ARCH)
 ASFLAGS = -mcpu=$(CPU) -march=$(ARCH)
@@ -30,6 +31,14 @@ else
 endif
 
 $(PIOS_OBJ_NOSAN): ASAN_FLAGS := -DSANITIZE=$(SANITIZE)
+
+$(BUILDDIR)/%.o: %.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(ASAN_FLAGS) $< -c -o $@
+
+$(BUILDDIR)/%.o: %.s
+	@mkdir -p $(@D)
+	$(CPP) $< | $(AS) $(ASFLAGS) -c -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(ASAN_FLAGS) $< -c -o $@
