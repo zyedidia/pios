@@ -4,7 +4,7 @@
 irq_vec_asm:
     mov sp, #INT_STACK_ADDR
     push {lr}                   // Save the PC when we got the interrupt
-    STMFD sp!,{R0-R14}^         // Save the other registers (from user regs)
+    stmfd sp!,{r0-r14}^         // Save the other registers (from user regs)
 
     sub lr, lr, #4              // Update the lr to where we should jump back to
 
