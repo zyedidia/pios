@@ -3,14 +3,15 @@
 
 volatile unsigned count = 0;
 
-void __attribute((interrupt("IRQ"))) irq(uint32_t *state_ptr) {
+void irq(uint32_t *state_ptr) {
     dev_barrier();
     if (!timer_has_irq()) return;
 
     if (count++ > 3) reboot();
 
-    for (size_t i = 0; i < 16; i++)
+    for (size_t i = 0; i < 16; i++) {
         printf("Register %u is %lu\n", i, state_ptr[i]);
+    }
 
     dev_barrier();
     timer_clear_irq();
@@ -28,6 +29,7 @@ int main() {
     register_irq_vec(IRQ_VEC_IRQ, (uintptr_t) irq_vec_asm);
 
     enable_interrupts();
+
     while (true) {
         asm ("mov r0,  $0");
         asm ("mov r1,  $1");
