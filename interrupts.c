@@ -1,5 +1,5 @@
-#include "pios.h"
 #include "dev.h"
+#include "pios.h"
 
 typedef struct {
     uint32_t irq_basic_pending;
@@ -18,7 +18,8 @@ void irq_enable_basic(uint32_t irq) {
 }
 
 void irq_enable(uint32_t irq) {
-    irq_ctrl->enable_irqs[irq / 32] = bit_set(irq_ctrl->enable_irqs[irq / 32], irq % 32);
+    irq_ctrl->enable_irqs[irq / 32] =
+        bit_set(irq_ctrl->enable_irqs[irq / 32], irq % 32);
 }
 
 void irq_disable_basic(uint32_t irq) {
@@ -26,7 +27,8 @@ void irq_disable_basic(uint32_t irq) {
 }
 
 void irq_disable(uint32_t irq) {
-    irq_ctrl->disable_irqs[irq / 32] = bit_set(irq_ctrl->disable_irqs[irq / 32], irq % 32);
+    irq_ctrl->disable_irqs[irq / 32] =
+        bit_set(irq_ctrl->disable_irqs[irq / 32], irq % 32);
 }
 
 bool irq_basic_pending(uint32_t irq) {

@@ -164,9 +164,9 @@ int tfp_vsprintf(char* str, const char* fmt, va_list ap);
 int tfp_sprintf(char* str, const char* fmt, ...) _TFP_SPECIFY_PRINTF_FMT(2, 3);
 #if TINYPRINTF_OVERRIDE_LIBC
 #define vsnprintf tfp_vsnprintf
-#define snprintf tfp_snprintf
-#define vsprintf tfp_vsprintf
-#define sprintf tfp_sprintf
+#define snprintf  tfp_snprintf
+#define vsprintf  tfp_vsprintf
+#define sprintf   tfp_sprintf
 #endif
 #endif
 

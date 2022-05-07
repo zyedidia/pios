@@ -1,5 +1,5 @@
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef struct {
     uint32_t load;
@@ -13,27 +13,24 @@ typedef struct {
     uint32_t free_running_counter;
 } timer_t;
 
-#define TIMER_CTRL_32BIT         (1 << 1)
+#define TIMER_CTRL_32BIT (1 << 1)
 
-#define TIMER_CTRL_PRESCALE_1    (0 << 2)
-#define TIMER_CTRL_PRESCALE_16   (1 << 2)
-#define TIMER_CTRL_PRESCALE_256  (2 << 2)
+#define TIMER_CTRL_PRESCALE_1   (0 << 2)
+#define TIMER_CTRL_PRESCALE_16  (1 << 2)
+#define TIMER_CTRL_PRESCALE_256 (2 << 2)
 
-#define TIMER_CTRL_INT_ENABLE    (1 << 5)
-#define TIMER_CTRL_INT_DISABLE   (0 << 5)
+#define TIMER_CTRL_INT_ENABLE  (1 << 5)
+#define TIMER_CTRL_INT_DISABLE (0 << 5)
 
-#define TIMER_CTRL_ENABLE        (1 << 7)
-#define TIMER_CTRL_DISABLE       (0 << 7)
+#define TIMER_CTRL_ENABLE  (1 << 7)
+#define TIMER_CTRL_DISABLE (0 << 7)
 
 static volatile timer_t* const timer = (timer_t*) 0x2000B400;
 
 void timer_irq_load(uint32_t load) {
     timer->load = load;
-    timer->ctrl =
-        TIMER_CTRL_32BIT |
-        TIMER_CTRL_ENABLE |
-        TIMER_CTRL_INT_ENABLE |
-        TIMER_CTRL_PRESCALE_256;
+    timer->ctrl = TIMER_CTRL_32BIT | TIMER_CTRL_ENABLE | TIMER_CTRL_INT_ENABLE |
+                  TIMER_CTRL_PRESCALE_256;
 }
 
 bool timer_has_irq() {

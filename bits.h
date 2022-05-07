@@ -16,7 +16,7 @@ static inline uint32_t bit_assign(uint32_t x, unsigned bit, unsigned val) {
 }
 
 #define bit_isset bit_is_on
-#define bit_get bit_is_on
+#define bit_get   bit_is_on
 
 static inline unsigned bit_is_on(uint32_t x, unsigned bit) {
     return (x >> bit) & 1;

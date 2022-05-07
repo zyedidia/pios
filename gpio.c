@@ -1,10 +1,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "interrupts.h"
 #include "bits.h"
-#include "timer.h"
 #include "gpio.h"
+#include "interrupts.h"
+#include "timer.h"
 
 static volatile uint32_t* gpio_fsel = (uint32_t*) (GPIO_BASE);
 static volatile uint32_t* gpio_eds = (uint32_t*) (GPIO_BASE + 0x40);

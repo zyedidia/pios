@@ -2,12 +2,12 @@
 
 #include "bits.h"
 #include "gpio.h"
-#include "libc/tinyprintf.h"
-#include "timer.h"
-#include "uart.h"
 #include "interrupts.h"
 #include "kmalloc.h"
 #include "ksan.h"
+#include "libc/tinyprintf.h"
+#include "timer.h"
+#include "uart.h"
 
 void kernel_start();
 void reboot();

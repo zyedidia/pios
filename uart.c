@@ -20,13 +20,13 @@ typedef struct {
     uint32_t baud;
 } aux_periphs_t;
 
-#define ENABLE_UART 1
-#define RX_ENABLE (1 << 0)
-#define TX_ENABLE (1 << 1)
+#define ENABLE_UART   1
+#define RX_ENABLE     (1 << 0)
+#define TX_ENABLE     (1 << 1)
 #define CLEAR_TX_FIFO (1 << 1)
 #define CLEAR_RX_FIFO (1 << 2)
-#define CLEAR_FIFOS (CLEAR_TX_FIFO | CLEAR_RX_FIFO)
-#define IIR_RESET ((0b11 << 6) | 1)
+#define CLEAR_FIFOS   (CLEAR_TX_FIFO | CLEAR_RX_FIFO)
+#define IIR_RESET     ((0b11 << 6) | 1)
 
 static volatile uint32_t* const aux_enables = (uint32_t*) 0x20215004;
 static volatile aux_periphs_t* const uart = (aux_periphs_t*) 0x20215040;
