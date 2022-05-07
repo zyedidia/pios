@@ -3,14 +3,11 @@
 
 typedef struct {
     uint32_t irq_basic_pending;
-    uint32_t irq_pending_1;
-    uint32_t irq_pending_2;
+    uint32_t irq_pending[2];
     uint32_t fiq_control;
-    uint32_t enable_irqs_1;
-    uint32_t enable_irqs_2;
+    uint32_t enable_irqs[2];
     uint32_t enable_basic_irqs;
-    uint32_t disable_irqs_1;
-    uint32_t disable_irqs_2;
+    uint32_t disable_irqs[2];
     uint32_t disable_basic_irqs;
 } irq_ctrl_t;
 
@@ -21,11 +18,7 @@ void irq_enable_basic(uint32_t irq) {
 }
 
 void irq_enable(uint32_t irq) {
-    if (irq < 32) {
-        irq_ctrl->enable_irqs_1 = bit_set(irq_ctrl->enable_irqs_1, irq);
-    } else if (irq < 64) {
-        irq_ctrl->enable_irqs_2 = bit_set(irq_ctrl->enable_irqs_2, irq-32);
-    }
+    irq_ctrl->enable_irqs[irq / 32] = bit_set(irq_ctrl->enable_irqs[irq / 32], irq % 32);
 }
 
 void irq_disable_basic(uint32_t irq) {
@@ -33,11 +26,7 @@ void irq_disable_basic(uint32_t irq) {
 }
 
 void irq_disable(uint32_t irq) {
-    if (irq < 32) {
-        irq_ctrl->disable_irqs_1 = bit_set(irq_ctrl->disable_irqs_1, irq);
-    } else if (irq < 64) {
-        irq_ctrl->disable_irqs_2 = bit_set(irq_ctrl->disable_irqs_2, irq-32);
-    }
+    irq_ctrl->disable_irqs[irq / 32] = bit_set(irq_ctrl->disable_irqs[irq / 32], irq % 32);
 }
 
 bool irq_basic_pending(uint32_t irq) {
@@ -45,18 +34,13 @@ bool irq_basic_pending(uint32_t irq) {
 }
 
 bool irq_pending(uint32_t irq) {
-    if (irq < 32) {
-        return bit_get(irq_ctrl->irq_pending_1, irq);
-    } else if (irq < 64) {
-        return bit_get(irq_ctrl->irq_pending_2, irq-32);
-    }
-    return false;
+    return bit_get(irq_ctrl->irq_pending[irq / 32], irq % 32);
 }
 
 #define IRQ_VECTOR_START 0
 void irq_init_table() {
-    irq_ctrl->disable_irqs_1 = 0xffffffff;
-    irq_ctrl->disable_irqs_2 = 0xffffffff;
+    irq_ctrl->disable_irqs[0] = 0xffffffff;
+    irq_ctrl->disable_irqs[1] = 0xffffffff;
     dev_barrier();
 
     extern unsigned _interrupt_table;
