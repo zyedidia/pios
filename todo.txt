@@ -1,6 +1,6 @@
 i2c
 spi
-interrupts
+interrupts cleanup
 tlb/vm
 riscv/portable
 gpu

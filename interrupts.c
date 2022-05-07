@@ -54,7 +54,7 @@ void irq_init_table() {
     }
 }
 
-extern char _vector_table;
+extern uintptr_t _vector_table;
 
 static volatile uintptr_t* const vec_tbl = (uintptr_t*) &_vector_table;
 
