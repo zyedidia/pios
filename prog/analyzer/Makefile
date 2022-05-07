@@ -20,11 +20,7 @@ install: $(PROG).bin
 $(PROG).elf: $(OBJ)
 	$(LD) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-clean:
-	rm -f *.list *.o $(PROG).elf $(PROG).bin
-
-format:
-	clang-format -i $(CSRC) $(HSRC)
+include ../../common.mk
 
 qemu: $(PROG).elf
 	qemu-system-arm -M raspi1ap -plugin $(PIOS)/plugin/memtrace/libmemtrace.so -nographic -d plugin -D trace.txt -kernel $< -serial null -serial mon:stdio -no-reboot
