@@ -1,6 +1,7 @@
 #define INT_STACK_ADDR 0x9000000
 
 .globl irq_vec_asm
+// TODO: Need to also save cpsr, maybe other state ?
 irq_vec_asm:
     mov sp, #INT_STACK_ADDR
     sub lr, lr, #4              // Update the lr to where we should jump back to
