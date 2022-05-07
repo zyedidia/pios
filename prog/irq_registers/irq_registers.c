@@ -7,13 +7,10 @@ void __attribute((interrupt("IRQ"))) irq(uint32_t *state_ptr) {
     dev_barrier();
     if (!timer_has_irq()) return;
 
-    if (count++ > 3) {
-        reboot();
-    }
+    if (count++ > 3) reboot();
 
-    for (size_t i = 0; i < 16; i++) {
+    for (size_t i = 0; i < 16; i++)
         printf("Register %u is %lu\n", i, state_ptr[i]);
-    }
 
     dev_barrier();
     timer_clear_irq();
