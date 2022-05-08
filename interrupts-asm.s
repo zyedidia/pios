@@ -28,8 +28,10 @@ asm_undef_insn:
 	mov sp, #INT_STACK_ADDR
 	ldr pc, _vec_undef_insn
 asm_software_irq:
-	mov sp, #INT_STACK_ADDR
-	ldr pc, _vec_software_irq
+	push {r1-r12,r14}
+	bl syscall
+	pop {r1-r12,r14}
+	movs pc, lr
 asm_prefetch_abort:
 	mov sp, #INT_STACK_ADDR
 	ldr pc, _vec_prefetch_abort
