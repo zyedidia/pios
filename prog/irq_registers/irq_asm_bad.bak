@@ -14,17 +14,33 @@ irq_vec_asm:
     mov r0, sp                  // save the location of where the saved state
                                 // starts.
 
-    mrs r1, cpsr                // r1 = current state
-    orr r2, r1, #0x1f           // r2 = system mode
+    mrs r1, spsr                // r1 = saved state
+    mrs r2, cpsr                // r2 = current state
+    bic r3, r2, #0x1f           // r3 = cpsr with no mode
+    and r4, r1, #0x1f           // r4 = spsr mode bits
+    orr r3, r4, r3              // r3 = cpsr with spsr mode
     msr cpsr, r2                // set the new mode (rmw)
 
     str r14, [r0, #52]          // store the sp
     str r13, [r0, #56]          // store the lr
 
-    msr cpsr, r1                // reset the mode
+    msr cpsr, r2                // reset the mode
 
     bl irq                      // call our actual irq handler
 
-    ldm sp, {r0-r15}^           // restore all registers, jump back.
+    mov r0, sp
+
+    mrs r1, spsr                // r1 = saved state
+    mrs r2, cpsr                // r2 = current state
+    bic r3, r2, #0x1f           // r3 = cpsr with no mode
+    and r4, r1, #0x1f           // r4 = spsr mode bits
+    orr r3, r4, r3              // r3 = cpsr with spsr mode
+    msr cpsr, r2                // set the new mode (rmw)
+
+    ldr r14, [r0, #52]          // restore the sp
+    ldr r13, [r0, #56]          // restore the lr
+
+    msr cpsr, r2                // reset the mode
+    ldm sp!,{r0-r15}^           // restore registers, jump back.
                                 // including r15 also tells ldm to restore spsr
                                 // into cpsr
