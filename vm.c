@@ -37,7 +37,7 @@ void vm_init() {
         if (ra == 0 || ra >= 0x07000000) {
             mmu_section(ra, ra);
         } else {
-            for (size_t i = 0; i < (1024 * 1024) / 4096; i++) {
+            for (size_t i = 0; i < 0x00100000 / 4096; i++) {
                 unsigned sub_ra = ra | (i * 4096);
                 vm_map(sub_ra, sub_ra, 0);
             }
