@@ -34,7 +34,7 @@ void vm_init() {
 
 #if 1
     for (unsigned ra = 0;; ra += 0x00100000) {
-        if (ra == 0 || ra >= 0x07000000) {
+        if (ra != 0x07000000) {
             mmu_section(ra, ra);
         } else {
             for (size_t i = 0; i < 0x00100000 / 4096; i++) {
