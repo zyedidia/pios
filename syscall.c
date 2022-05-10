@@ -1,10 +1,12 @@
 #include "pios.h"
 #include "syscall.h"
 
-void syscall(unsigned sysno) {
+void syscall(user_regs_t* regs) {
+    unsigned sysno = regs->r0;
     switch (sysno) {
     case SYSCALL_EXIT:
-        panic("exit unimplemented\n");
+        printf("Exiting\n");
+        reboot();
         break;
     default:
         panic("unhandled syscall %d\n", sysno);
