@@ -26,9 +26,18 @@ void irq(uint32_t *regs) {
     if ((instr & 0xfff00000) == 0xe5100000) { imm_val *= -1; }
     else if ((instr & 0xfff00000) == 0xe5000000) { imm_val *= -1; }
 
+    if (instr == 0xe12fff1e) {
+        // bx lr
+        src_reg = 14;
+        imm_val = 0;
+    }
+
     unsigned addr = regs[src_reg] + imm_val;
     unsigned page = addr & (~(4096 - 1));
-    printf("Attempted to access address: 0x%x, page: 0x%x, adding to the page table...\n", addr, page);
+    printf("Data abort at PC 0x%x\n", regs[15]);
+    printf("\tInstruction: 0x%x\n", instr);
+    printf("\tAddress: [%u, %u] = 0x%x\n", src_reg, imm_val, addr);
+    printf("\tAdding page: 0x%x to page table...\n", page);
     vm_map(page, page, 0);
     system_invalidate_tlb();
     system_invalidate_cache();
