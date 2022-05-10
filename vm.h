@@ -33,7 +33,7 @@ _Static_assert(sizeof(pde_t) == 4, "invalid size for pde_t");
 
 typedef struct {
     unsigned xn   : 1;
-    unsigned sz   : 1;
+    unsigned sbo  : 1;
     unsigned b    : 1;
     unsigned c    : 1;
     unsigned ap   : 2;
@@ -86,3 +86,9 @@ void vm_enable();
 #define SYSTEM_BRANCH_PREDICTION_ENABLE (1 << 11)
 #define SYSTEM_ICACHE_ENABLE            (1 << 12)
 #define SYSTEM_ROUND_ROBIN_ENABLE       (1 << 14)
+
+void system_set_domain(unsigned reg);
+void system_set_tlb_base(unsigned base);
+void system_invalidate_tlb(void);
+void system_invalidate_cache(void);
+void system_set_cache_control(unsigned reg);
