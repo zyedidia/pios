@@ -21,14 +21,14 @@ typedef union free_hdr { /* block header */
 extern char __heap_start__;
 uintptr_t heap_end = (uintptr_t) &__heap_start__;
 
-static inline uintptr_t align(uintptr_t ptr, size_t align) {
+static inline uintptr_t align_off(uintptr_t ptr, size_t align) {
     return ((~ptr) + 1) & (align - 1);
 }
 
 static void* sbrk(size_t size) {
     void* ret = (void*) heap_end;
     heap_end += size;
-    heap_end += align(heap_end, __alignof__(free_hdr_t));
+    heap_end += align_off(heap_end, __alignof__(free_hdr_t));
     return ret;
 }
 
@@ -231,3 +231,8 @@ void asan_enable() {
 }
 
 #endif
+
+void* kmalloc_aligned(size_t sz, size_t align) {
+    uintptr_t x = (uintptr_t) kmalloc(sz + align);
+    return (void*) (x + align_off(x, align));
+}

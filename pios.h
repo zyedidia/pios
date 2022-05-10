@@ -8,6 +8,7 @@
 #include "libc/tinyprintf.h"
 #include "timer.h"
 #include "uart.h"
+#include "vm.h"
 
 void kernel_start();
 void reboot();
