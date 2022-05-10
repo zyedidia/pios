@@ -16,10 +16,8 @@ static void init_second_level(pde_t* pde) {
     printf("%x\n", pgtbl);
     printf("%x\n", ((uintptr_t)pgtbl) & (1 << 10 - 1));
     memset(pgtbl, 0, 4096 * sizeof(pte_small_t));
-    unsigned flags = 0;
-    *(unsigned*)(pde) = (((unsigned)pgtbl) & 0xfffffc00) | (flags & 0xf0) | 0x01; 
-    // pde->addr = (uintptr_t) pgtbl >> 10;
-    // pde->tag = 0b01;
+    pde->addr = (uintptr_t) pgtbl >> 10;
+    pde->tag = 0b01;
     // pde->domain = DOM_CLIENT;
 }
 
@@ -39,8 +37,7 @@ void vm_init() {
 
 #if 1
     for (unsigned ra = 0;; ra += 0x00100000) {
-        // if (!(ra >= 0x00200000 && ra < 0x07000000)) {
-        if (ra == 0 || ra >= 0x08000000) {
+        if (ra == 0 || ra >= 0x07000000) {
             mmu_section(pgdir, ra, ra, 0);
         } else {
             for (size_t i = 0; i < (1024 * 1024) / 4096; i++) {
