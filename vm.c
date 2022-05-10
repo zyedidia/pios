@@ -27,25 +27,6 @@ static void mmu_section(unsigned vaddr, unsigned paddr) {
 void vm_init() {
     pgdir = kmalloc_aligned(4096 * sizeof(pde_t), 1 << 14);
     memset(pgdir, 0, 4096 * sizeof(pde_t));
-
-#if 1
-    for (unsigned ra = 0;; ra += 0x00100000) {
-        if (ra == 0 || ra >= 0x07000000) {
-            mmu_section(ra, ra);
-        } else {
-            for (size_t i = 0; i < 0x00100000 / 4096; i++) {
-                unsigned sub_ra = ra | (i * 4096);
-                vm_map(sub_ra, sub_ra, 0);
-            }
-        }
-        if (ra == 0x10000000) break;
-    }
-#endif
-
-    for (unsigned ra = 0x20000000; ; ra += 0x00100000) {
-        mmu_section(ra, ra);
-        if (ra == 0x30000000) break;
-    }
 }
 
 void system_set_cache_control(unsigned reg) {
