@@ -81,8 +81,8 @@ void vm_enable() {
     system_invalidate_tlb();
     dsb();
 
-    // system_set_domain(DOM_CLIENT);
-    system_set_domain(DOM_MANAGER);
+    system_set_domain(DOM_CLIENT);
+    // system_set_domain(DOM_MANAGER);
 
     system_set_tlb_base((uintptr_t) pgdir);
     system_set_cache_control(
@@ -90,5 +90,6 @@ void vm_enable() {
                      SYSTEM_DCACHE_ENABLE |
                      SYSTEM_ICACHE_ENABLE |
                      SYSTEM_BRANCH_PREDICTION_ENABLE |
-                     SYSTEM_WRITE_BUFFER_ENABLE);
+                     SYSTEM_WRITE_BUFFER_ENABLE |
+                     (1 << 23));
 }
