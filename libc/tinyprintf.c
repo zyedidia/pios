@@ -69,9 +69,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * Implementation
  */
 struct param {
-    char lz : 1;         /**<  Leading zeros */
-    char alt : 1;        /**<  alternate form */
-    char uc : 1;         /**<  Upper case (for base16 only) */
+    char lz         : 1; /**<  Leading zeros */
+    char alt        : 1; /**<  alternate form */
+    char uc         : 1; /**<  Upper case (for base16 only) */
     char align_left : 1; /**<  0 == align right (default), 1 == align left */
     unsigned int width;  /**<  field width */
     char sign;           /**<  The sign to display (if any) */
