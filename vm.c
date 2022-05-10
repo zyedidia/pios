@@ -39,7 +39,8 @@ void vm_init() {
 
 #if 1
     for (unsigned ra = 0;; ra += 0x00100000) {
-        if (!(ra >= 0x00200000 && ra < 0x07000000)) {
+        // if (!(ra >= 0x00200000 && ra < 0x07000000)) {
+        if (ra == 0 || ra >= 0x08000000) {
             mmu_section(pgdir, ra, ra, 0);
         } else {
             for (size_t i = 0; i < (1024 * 1024) / 4096; i++) {
