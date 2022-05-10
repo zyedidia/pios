@@ -13,7 +13,6 @@ static void init_second_level(pde_t* pde) {
     memset(pgtbl, 0, 256 * sizeof(pte_small_t));
     pde->addr = (uintptr_t) pgtbl >> 10;
     pde->tag = 0b01;
-    pde->domain = DOM_MANAGER;
 }
 
 static void system_set_cache_control(unsigned reg) {

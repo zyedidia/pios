@@ -23,7 +23,7 @@ int main() {
     }
 
     extern char __heap_start__;
-    for (unsigned i = 0; i < 256; i++) {
+    for (unsigned i = 0; i < 512; i++) {
         vm_map((uintptr_t) &__heap_start__ + page_size * i,
                (uintptr_t) &__heap_start__ + page_size * i, 0);
         vm_map(0x20000000 + page_size * i, 0x20000000 + page_size * i, 0);
