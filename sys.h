@@ -22,6 +22,10 @@ static inline void sys_prefetch_flush() {
     asm volatile("mcr p15, 0, r0, c7, c5, 4");
 }
 
+static inline void sys_flush_btb() {
+    asm volatile("mcr p15, 0, r0, c7, c5, 6");
+}
+
 static inline void sys_set_cache_control(unsigned reg) {
     // See section 3.2.7 in arm1176
     asm volatile("mcr p15, 0, %0, c1, c0, 0" : : "r"(reg));
