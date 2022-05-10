@@ -4,6 +4,17 @@
 #define INT_STACK_ADDR 0x9000000
 #define CODE_ADDR      0x8000
 
+#define dsb() asm volatile("mcr p15, #0, %0, c7, c10, #4" : : "r"(0))
+static void system_invalidate_tlb(void) {
+    asm volatile("mcr p15, 0, %0, c8, c7, 0" : : "r"(0));
+    dsb();
+}
+
+static void system_invalidate_cache(void) {
+    // See Fig 3.38 in section 3.2.22 in arm1176
+    asm volatile("mcr p15, 0, %0, c7, c7, 0" : : "r"(0));
+}
+
 void irq(uint32_t *regs) {
     regs[15] -= 4; // pc points to the _next_ instruction in irq
 
@@ -16,9 +27,11 @@ void irq(uint32_t *regs) {
     else if ((instr & 0xfff00000) == 0xe5000000) { imm_val *= -1; }
 
     unsigned addr = regs[src_reg] + imm_val;
-    printf("Attempted to access address: %x\n", addr);
-
-    reboot();
+    unsigned page = addr & (~(4096 - 1));
+    printf("Attempted to access address: 0x%x, page: 0x%x, adding to the page table...\n", addr, page);
+    vm_map(page, page, 0);
+    system_invalidate_tlb();
+    system_invalidate_cache();
 }
 
 extern void irq_vec_asm();
@@ -54,10 +67,11 @@ int main() {
 
     printf("done!\n");
 
-    asm volatile ("nop");
     volatile unsigned *ptr = (void*)0x30200005;
     *ptr = 5;
-    asm volatile ("nop");
+    printf("Wrote data: %u\n", *ptr);
+    *ptr = 10;
+    printf("Overwrote data: %u\n", *ptr);
 
     return 0;
 }
