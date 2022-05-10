@@ -4,8 +4,8 @@
 static pde_t* pgdir;
 
 void vm_init() {
-    pgdir = kmalloc_aligned(256 * sizeof(pde_t), 1 << 14);
-    memset(pgdir, 0, 256 * sizeof(pde_t));
+    pgdir = kmalloc_aligned(4096 * sizeof(pde_t), 1 << 14);
+    memset(pgdir, 0, 4096 * sizeof(pde_t));
 }
 
 static void init_second_level(pde_t* pde) {
@@ -13,7 +13,7 @@ static void init_second_level(pde_t* pde) {
     memset(pgtbl, 0, 256 * sizeof(pte_small_t));
     pde->addr = (uintptr_t) pgtbl >> 10;
     pde->tag = 0b01;
-    pde->domain = DOM_CLIENT;
+    pde->domain = DOM_MANAGER;
 }
 
 static void system_set_cache_control(unsigned reg) {
@@ -28,7 +28,7 @@ void vm_map(uintptr_t va, uintptr_t pa, unsigned flags) {
     switch (pde->tag) {
         case 0b00:
             init_second_level(pde);
-        case 0b01:
+        case 0b01: ;
             pte_small_t* pgtbl = (pte_small_t*) (pde->addr << 10);
             pte_small_t* pte = &pgtbl[bits_get(va, 12, 19)];
             pte->addr = pa >> 12;
@@ -66,7 +66,7 @@ void vm_enable() {
     system_invalidate_cache();
     system_invalidate_tlb();
     dsb();
-    system_set_domain(DOM_CLIENT);
+    system_set_domain(DOM_MANAGER);
     system_set_tlb_base((uintptr_t) pgdir);
     system_set_cache_control(
         SYSTEM_MMU_ENABLE | SYSTEM_DCACHE_ENABLE | SYSTEM_ICACHE_ENABLE |
