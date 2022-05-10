@@ -33,3 +33,10 @@ static inline void cache_disable(void) {
     printf("PANIC: ");         \
     printf(format, ##args);    \
     reboot();
+
+#define assert(x, format, args...) \
+    if (!(x)) {                  \
+    printf("PANIC: ");         \
+    printf(format, ##args);    \
+    reboot();                  \
+    }

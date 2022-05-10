@@ -234,5 +234,6 @@ void asan_enable() {
 
 void* kmalloc_aligned(size_t sz, size_t align) {
     uintptr_t x = (uintptr_t) kmalloc(sz + align);
+    assert(align_off(x, align) <= align, "bad");
     return (void*) (x + align_off(x, align));
 }

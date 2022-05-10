@@ -13,19 +13,16 @@ void PUT32(unsigned addr, unsigned val) {
 
 static void init_second_level(pde_t* pde) {
     pte_small_t* pgtbl = kmalloc_aligned(4096 * sizeof(pte_small_t), 1 << 10);
-    printf("%x\n", pgtbl);
-    printf("%x\n", ((uintptr_t)pgtbl) & (1 << 10 - 1));
     memset(pgtbl, 0, 4096 * sizeof(pte_small_t));
     pde->addr = (uintptr_t) pgtbl >> 10;
     pde->tag = 0b01;
-    // pde->domain = DOM_CLIENT;
 }
 
-static void mmu_section(unsigned base, unsigned vaddr, unsigned paddr, unsigned flags) {
-    unsigned ra = vaddr >> 20;
-    unsigned rb = base | (ra << 2);
-    unsigned rc = (paddr & 0xFFF00000) | MMU_PAGE_ACCESS_RW | MMU_PAGE_SECTION | flags;
-    PUT32(rb, rc);
+static void mmu_section(unsigned vaddr, unsigned paddr) {
+    pte_1mb_t *pte = (void*)&pgdir[vaddr >> 20];
+    pte->sec_base_addr = (paddr >> 20) & 0xfff;
+    pte->ap = AP_RW;
+    pte->tag = 0b10;
 }
 
 #define CACHEABLE 0x08
@@ -38,7 +35,7 @@ void vm_init() {
 #if 1
     for (unsigned ra = 0;; ra += 0x00100000) {
         if (ra == 0 || ra >= 0x07000000) {
-            mmu_section(pgdir, ra, ra, 0);
+            mmu_section(ra, ra);
         } else {
             for (size_t i = 0; i < (1024 * 1024) / 4096; i++) {
                 unsigned sub_ra = ra | (i * 4096);
@@ -49,8 +46,8 @@ void vm_init() {
     }
 #endif
 
-    mmu_section(pgdir, 0x20000000, 0x20000000, 0x00000); // NOT CACHED!
-    mmu_section(pgdir, 0x20200000, 0x20200000, 0x00000); // NOT CACHED!
+    mmu_section(0x20000000, 0x20000000);
+    mmu_section(0x20200000, 0x20200000);
 }
 
 void system_set_cache_control(unsigned reg) {
