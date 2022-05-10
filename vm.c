@@ -30,24 +30,20 @@ void vm_init() {
 
 #if 1
     for (unsigned ra = 0;; ra += 0x00100000) {
-        // if (ra == 0 || ra >= 0x07000000) {
-        //     // mmu_section(ra, ra);
-        // } else {
+        if (ra == 0 || ra >= 0x07000000) {
+            mmu_section(ra, ra);
+        } else {
             for (size_t i = 0; i < 0x00100000 / 4096; i++) {
                 unsigned sub_ra = ra | (i * 4096);
                 vm_map(sub_ra, sub_ra, 0);
             }
-        // }
+        }
         if (ra == 0x10000000) break;
     }
 #endif
 
     for (unsigned ra = 0x20000000; ; ra += 0x00100000) {
-        // mmu_section(ra, ra);
-        for (size_t i = 0; i < 0x00100000 / 4096; i++) {
-            unsigned sub_ra = ra | (i * 4096);
-            vm_map(sub_ra, sub_ra, 0);
-        }
+        mmu_section(ra, ra);
         if (ra == 0x30000000) break;
     }
 }
@@ -104,7 +100,8 @@ void vm_enable() {
     system_invalidate_tlb();
     dsb();
 
-    system_set_domain(DOM_CLIENT);
+    // system_set_domain(DOM_CLIENT);
+    system_set_domain(DOM_MANAGER);
 
     system_set_tlb_base((uintptr_t) pgdir);
     system_set_cache_control(
