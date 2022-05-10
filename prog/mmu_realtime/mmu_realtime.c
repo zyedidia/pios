@@ -18,25 +18,11 @@ static void system_invalidate_cache(void) {
 void irq(uint32_t *regs) {
     regs[15] -= 4; // pc points to the _next_ instruction in irq
 
-    unsigned instr = *(unsigned*)(regs[15]);
-    uint32_t dst_reg = instr >> 12 & 0xf,
-             src_reg = instr >> 16 & 0xf;
-    // TODO: Actually parse these correctly
-    int32_t imm_val = instr & 0xfff;
-    if ((instr & 0xfff00000) == 0xe5100000) { imm_val *= -1; }
-    else if ((instr & 0xfff00000) == 0xe5000000) { imm_val *= -1; }
-
-    if (instr == 0xe12fff1e) {
-        // bx lr
-        src_reg = 14;
-        imm_val = 0;
-    }
-
-    unsigned addr = regs[src_reg] + imm_val;
+    unsigned addr = get_dfar();
     unsigned page = addr & (~(4096 - 1));
     printf("Data abort at PC 0x%x\n", regs[15]);
-    printf("\tInstruction: 0x%x\n", instr);
-    printf("\tAddress: [%u, %u] = 0x%x\n", src_reg, imm_val, addr);
+    printf("\tInstruction: 0x%x\n", *(unsigned*)regs[15]);
+    printf("\tAddress: 0x%x\n", addr);
     printf("\tAdding page: 0x%x to page table...\n", page);
     vm_map(page, page, 0);
     system_invalidate_tlb();
