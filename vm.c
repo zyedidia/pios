@@ -46,8 +46,10 @@ void vm_init() {
     }
 #endif
 
-    mmu_section(0x20000000, 0x20000000);
-    mmu_section(0x20200000, 0x20200000);
+    for (unsigned ra = 0x20000000; ; ra += 0x00100000) {
+        mmu_section(ra, ra);
+        if (ra == 0x30000000) break;
+    }
 }
 
 void system_set_cache_control(unsigned reg) {
