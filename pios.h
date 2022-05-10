@@ -2,6 +2,7 @@
 
 #include "bits.h"
 #include "gpio.h"
+#include "i2c.h"
 #include "interrupts.h"
 #include "kmalloc.h"
 #include "ksan.h"
@@ -29,7 +30,9 @@ static inline void cache_disable(void) {
     asm volatile("MCR p15, 0, %0, c1, c0, 0" ::"r"(r));
 }
 
-#define panic(format, args...) \
-    printf("PANIC: ");         \
-    printf(format, ##args);    \
-    reboot();
+#define panic(format, args...)  \
+    do {                        \
+        printf("PANIC: ");      \
+        printf(format, ##args); \
+        reboot();               \
+    } while (0)

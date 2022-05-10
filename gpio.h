@@ -6,6 +6,8 @@
 enum {
     GPIO_TX = 14,
     GPIO_RX = 15,
+    GPIO_SDA = 2,
+    GPIO_SCL = 3,
 };
 
 typedef enum {

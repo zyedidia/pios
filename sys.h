@@ -31,7 +31,7 @@ static inline void sys_set_cache_control(unsigned reg) {
     asm volatile("mcr p15, 0, %0, c1, c0, 0" : : "r"(reg));
 }
 
-unsigned sys_get_cache_control() {
+static inline unsigned sys_get_cache_control() {
     unsigned reg;
     asm volatile("mrc p15, 0, %0, c1, c0, 0" : "=r"(reg));
     return reg;
