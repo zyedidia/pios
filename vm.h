@@ -76,15 +76,3 @@ enum {
 void vm_init();
 void vm_map(uintptr_t va, uintptr_t pa, unsigned flags);
 void vm_enable();
-
-#define MMU_PAGE_SECTION    0x00002  // 1MB sections
-#define MMU_PAGE_CACHEABLE  0x00008  // cache enabled
-#define MMU_PAGE_BUFFERABLE 0x00004  // write-buffer enabled
-
-#define SYSTEM_MMU_ENABLE               (1 << 0)
-#define SYSTEM_DCACHE_ENABLE            (1 << 2)
-#define SYSTEM_WRITE_BUFFER_ENABLE      (1 << 3)
-#define SYSTEM_BRANCH_PREDICTION_ENABLE (1 << 11)
-#define SYSTEM_ICACHE_ENABLE            (1 << 12)
-#define SYSTEM_ROUND_ROBIN_ENABLE       (1 << 14)
-#define SYSTEM_MMU_XP                   (1 << 23)

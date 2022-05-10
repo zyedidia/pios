@@ -15,11 +15,6 @@ static void init_second_level(pde_t* pde) {
     pde->tag = 0b01;
 }
 
-static void system_set_cache_control(unsigned reg) {
-    // See section 3.2.7 in arm1176
-    asm volatile("mcr p15, 0, %0, c1, c0, 0" : : "r"(reg));
-}
-
 void vm_map(uintptr_t va, uintptr_t pa, unsigned flags) {
     unsigned pde_idx = va >> 20;
     pde_t* pde = &pgdir[pde_idx];
@@ -39,37 +34,13 @@ void vm_map(uintptr_t va, uintptr_t pa, unsigned flags) {
     }
 }
 
-#define dsb() asm volatile("mcr p15, #0, %0, c7, c10, #4" : : "r"(0))
-
-#define dmb() asm volatile("mcr p15, #0, %0, c7, c10, #5" : : "r"(0))
-
-static void system_set_domain(unsigned reg) {
-    asm volatile("mcr p15, 0, %0, c3, c0, 0" : : "r"(reg));
-}
-
-static void system_set_tlb_base(unsigned base) {
-    asm volatile("mcr p15, 0, %0, c2, c0, 0" : : "r"(base));
-    asm volatile("mcr p15, 0, %0, c2, c0, 1" : : "r"(base));
-}
-
-static void system_invalidate_tlb(void) {
-    asm volatile("mcr p15, 0, %0, c8, c7, 0" : : "r"(0));
-    dsb();
-}
-
-static void system_invalidate_cache(void) {
-    // See Fig 3.38 in section 3.2.22 in arm1176
-    asm volatile("mcr p15, 0, %0, c7, c7, 0" : : "r"(0));
-}
-
 void vm_enable() {
-    system_invalidate_cache();
-    system_invalidate_tlb();
+    sys_invalidate_cache();
+    sys_invalidate_tlb();
     dsb();
-    system_set_domain(DOM_CLIENT);
-    system_set_tlb_base((uintptr_t) pgdir);
-    system_set_cache_control(SYSTEM_MMU_ENABLE | SYSTEM_DCACHE_ENABLE |
-                             SYSTEM_ICACHE_ENABLE |
-                             SYSTEM_BRANCH_PREDICTION_ENABLE |
-                             SYSTEM_WRITE_BUFFER_ENABLE | SYSTEM_MMU_XP);
+    sys_set_domain(DOM_CLIENT);
+    sys_set_tlb_base((uintptr_t) pgdir);
+    sys_set_cache_control(SYS_MMU_ENABLE | SYS_DCACHE_ENABLE |
+                          SYS_ICACHE_ENABLE | SYS_BRANCH_PREDICTION_ENABLE |
+                          SYS_WRITE_BUFFER_ENABLE | SYS_MMU_XP);
 }
