@@ -3,10 +3,6 @@
 
 static pde_t* pgdir;
 
-#define MMU_PAGE_ACCESS_NONE 0x00400
-#define MMU_PAGE_ACCESS_R    0x00800
-#define MMU_PAGE_ACCESS_RW   0x00C00
-
 void PUT32(unsigned addr, unsigned val) {
     *((uint32_t*)addr) = val;
 }
@@ -34,20 +30,24 @@ void vm_init() {
 
 #if 1
     for (unsigned ra = 0;; ra += 0x00100000) {
-        if (ra == 0 || ra >= 0x07000000) {
-            mmu_section(ra, ra);
-        } else {
+        // if (ra == 0 || ra >= 0x07000000) {
+        //     // mmu_section(ra, ra);
+        // } else {
             for (size_t i = 0; i < 0x00100000 / 4096; i++) {
                 unsigned sub_ra = ra | (i * 4096);
                 vm_map(sub_ra, sub_ra, 0);
             }
-        }
+        // }
         if (ra == 0x10000000) break;
     }
 #endif
 
     for (unsigned ra = 0x20000000; ; ra += 0x00100000) {
-        mmu_section(ra, ra);
+        // mmu_section(ra, ra);
+        for (size_t i = 0; i < 0x00100000 / 4096; i++) {
+            unsigned sub_ra = ra | (i * 4096);
+            vm_map(sub_ra, sub_ra, 0);
+        }
         if (ra == 0x30000000) break;
     }
 }
