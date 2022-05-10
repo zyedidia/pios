@@ -87,3 +87,4 @@ void vm_enable();
 #define SYSTEM_BRANCH_PREDICTION_ENABLE (1 << 11)
 #define SYSTEM_ICACHE_ENABLE            (1 << 12)
 #define SYSTEM_ROUND_ROBIN_ENABLE       (1 << 14)
+#define SYSTEM_MMU_XP                   (1 << 23)
