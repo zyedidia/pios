@@ -50,6 +50,7 @@ typedef struct {
     unsigned b    : 1;
     unsigned c    : 1;
     unsigned ap   : 2;
+    unsigned sbz  : 3;
     unsigned apx  : 1;
     unsigned s    : 1;
     unsigned ng   : 1;

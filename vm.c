@@ -28,11 +28,12 @@ void vm_map(uintptr_t va, uintptr_t pa, unsigned flags) {
     switch (pde->tag) {
         case 0b00:
             init_second_level(pde);
-        case 0b01: ;
+        case 0b01:;
             pte_small_t* pgtbl = (pte_small_t*) (pde->addr << 10);
             pte_small_t* pte = &pgtbl[bits_get(va, 12, 19)];
             pte->addr = pa >> 12;
             pte->ap = AP_RW;
+            pte->sz = 1;
             break;
         default:
             panic("invalid pde tag: %d\n", pde->tag);
