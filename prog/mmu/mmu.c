@@ -12,6 +12,8 @@ int main() {
 
     vm_init();
 
+    vm_map(0, 0, 0);
+
     for (unsigned i = 0; i < 4; i++) {
         vm_map(STACK_ADDR - page_size * (i + 1), STACK_ADDR - page_size * (i + 1), 0);
         vm_map(INT_STACK_ADDR - page_size * (i + 1), INT_STACK_ADDR - page_size * (i + 1), 0);
