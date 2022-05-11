@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#define pa2ka(pa) ((pa | (1 << 31)))
-#define ka2pa(ka) ((ka & ~(1 << 31)))
+#define pa2ka(pa) ((pa | (1UL << 31)))
+#define ka2pa(ka) ((ka & ~(1UL << 31)))
 
 typedef struct {
     unsigned tag           : 2;
