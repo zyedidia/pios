@@ -1,6 +1,6 @@
-MEMMAP = $(PIOS)/memmap.ld
-
 KERN = $(PIOS)/kern
+
+MEMMAP = $(KERN)/memmap.ld
 
 KERN_CSRC = $(wildcard $(KERN)/*.c) $(wildcard $(PIOS)/libc/*.c)
 KERN_HSRC = $(wildcard $(KERN)/*.h) $(wildcard $(PIOS)/libc/*.h)
