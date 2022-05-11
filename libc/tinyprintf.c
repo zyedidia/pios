@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "tinyprintf.h"
 
+void uart_putc(void* p, char c);
+
 /*
  * Configuration
  */
@@ -188,7 +190,8 @@ static char a2u(char ch, const char** src, int base, unsigned int* nump) {
     return ch;
 }
 
-static void putchw(void* putp, putcf putf, struct param* p) {
+#define putf uart_putc
+static void putchw(void* putp, struct param* p) {
     char ch;
     int n = p->width;
     char* bf = p->bf;
@@ -239,7 +242,7 @@ static void putchw(void* putp, putcf putf, struct param* p) {
     }
 }
 
-void tfp_format(void* putp, putcf putf, const char* fmt, va_list va) {
+void tfp_format(void* putp, const char* fmt, va_list va) {
     struct param p;
 #ifdef PRINTF_LONG_SUPPORT
     char bf[23]; /* long = 64b on some architectures */
@@ -339,7 +342,7 @@ void tfp_format(void* putp, putcf putf, const char* fmt, va_list va) {
                     else
 #endif
                         ui2a(va_arg(va, unsigned int), &p);
-                    putchw(putp, putf, &p);
+                    putchw(putp, &p);
                     break;
                 case 'd':
                 case 'i':
@@ -355,7 +358,7 @@ void tfp_format(void* putp, putcf putf, const char* fmt, va_list va) {
                     else
 #endif
                         i2a(va_arg(va, int), &p);
-                    putchw(putp, putf, &p);
+                    putchw(putp, &p);
                     break;
 #ifdef SIZEOF_POINTER
                 case 'p':
@@ -383,19 +386,19 @@ void tfp_format(void* putp, putcf putf, const char* fmt, va_list va) {
                     else
 #endif
                         ui2a(va_arg(va, unsigned int), &p);
-                    putchw(putp, putf, &p);
+                    putchw(putp, &p);
                     break;
                 case 'o':
                     p.base = 8;
                     ui2a(va_arg(va, unsigned int), &p);
-                    putchw(putp, putf, &p);
+                    putchw(putp, &p);
                     break;
                 case 'c':
                     putf(putp, (char) (va_arg(va, int)));
                     break;
                 case 's':
                     p.bf = va_arg(va, char*);
-                    putchw(putp, putf, &p);
+                    putchw(putp, &p);
                     p.bf = bf;
                     break;
                 case '%':
@@ -409,18 +412,16 @@ abort:;
 }
 
 #if TINYPRINTF_DEFINE_TFP_PRINTF
-static putcf stdout_putf;
 static void* stdout_putp;
 
 void init_printf(void* putp, putcf putf) {
-    stdout_putf = putf;
     stdout_putp = putp;
 }
 
 void tfp_printf(char* fmt, ...) {
     va_list va;
     va_start(va, fmt);
-    tfp_format(stdout_putp, stdout_putf, fmt, va);
+    tfp_format(stdout_putp, fmt, va);
     va_end(va);
 }
 #endif
@@ -448,7 +449,7 @@ int tfp_vsnprintf(char* str, size_t size, const char* format, va_list ap) {
     data.dest = str;
     data.dest_capacity = size - 1;
     data.num_chars = 0;
-    tfp_format(&data, _vsnprintf_putcf, format, ap);
+    tfp_format(&data, format, ap);
 
     if (data.num_chars < data.dest_capacity)
         data.dest[data.num_chars] = '\0';
@@ -482,7 +483,7 @@ int tfp_vsprintf(char* str, const char* format, va_list ap) {
     struct _vsprintf_putcf_data data;
     data.dest = str;
     data.num_chars = 0;
-    tfp_format(&data, _vsprintf_putcf, format, ap);
+    tfp_format(&data, format, ap);
     data.dest[data.num_chars] = '\0';
     return data.num_chars;
 }

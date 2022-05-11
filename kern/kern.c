@@ -42,16 +42,20 @@ static void unmap_low_pages() {
     for (uintptr_t pa = (uintptr_t) &__code_start__; pa < (uintptr_t) &__code_end__; pa += page_size) {
         vm_unmap(pa);
     }
+#if 0
     // map heap
     extern char __heap_start__;
     for (uintptr_t pa = (uintptr_t) &__heap_start__; pa < heap_end; pa += page_size) {
         vm_unmap(pa);
     }
+#endif
     // map uart, gpio, watchdog timer
     vm_unmap(0x20100000);
+#if 0
     for (unsigned i = 0; i < 64; i++) {
         vm_unmap(0x20200000 + page_size * i);
     }
+#endif
     sys_prefetch_flush();
     sys_flush_btb();
     sys_clean_and_invalidate_cache();
@@ -71,8 +75,12 @@ void kernel_start() {
     vm_enable();
 
     jump_to_ka();
-    /* unmap_low_pages(); */
+    unmap_low_pages();
 
-    printf("kernel booted\n");
+    printf("Hello, World!\n");
+
+    reboot();
+
+    // printf("kernel booted\n");
     return;
 }

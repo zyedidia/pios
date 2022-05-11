@@ -154,7 +154,7 @@ typedef void (*putcf)(void*, char);
    The 'tfp_printf' and 'tfp_sprintf' functions simply define their own
    callback and pass to it the right 'putp' it is expecting.
 */
-void tfp_format(void* putp, putcf putf, const char* fmt, va_list va);
+void tfp_format(void* putp, const char* fmt, va_list va);
 
 #if TINYPRINTF_DEFINE_TFP_SPRINTF
 int tfp_vsnprintf(char* str, size_t size, const char* fmt, va_list ap);
