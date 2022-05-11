@@ -1,12 +1,12 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "vm.h"
 #include "dev.h"
 #include "bits.h"
 #include "interrupts.h"
 #include "kern.h"
-#include "libc/tinyprintf.h"
 
 typedef struct {
     uint32_t irq_basic_pending;
@@ -52,15 +52,13 @@ void irq_init_table() {
     irq_ctrl->disable_irqs[1] = 0xffffffff;
     dev_barrier();
 
-    extern unsigned _interrupt_table;
-    extern unsigned _interrupt_table_end;
+    extern char _interrupt_table;
+    extern char _interrupt_table_end;
 
-    volatile unsigned* dst = (unsigned*) IRQ_VECTOR_START;
-    unsigned* src = &_interrupt_table;
-    unsigned n = &_interrupt_table_end - src;
-    for (unsigned i = 0; i < n; i++) {
-        dst[i] = src[i];
-    }
+    char* dst = (char*) IRQ_VECTOR_START;
+    char* src = (char*) &_interrupt_table;
+    size_t n = &_interrupt_table_end - src;
+    memcpy(dst, src, n);
 }
 
 extern uintptr_t _vector_table;

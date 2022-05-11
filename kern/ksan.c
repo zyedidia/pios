@@ -40,6 +40,13 @@ typedef struct {
     const type_desc_t* type;
 } type_data_t;
 
+typedef struct {
+    src_loc_t loc;
+    type_desc_t* type;
+    uint8_t alignment;
+    uint8_t type_check_kind;
+} type_mismatch_t;
+
 typedef type_data_t overflow_t;
 typedef type_data_t invalid_value_t;
 typedef type_data_t vla_bound_t;
@@ -85,12 +92,12 @@ void __ubsan_handle_shift_out_of_bounds(shift_out_of_bounds_t* data,
     panic("%s:%lu: shift out of bounds\n", data->loc.file, data->loc.line);
 }
 
-void __ubsan_handle_type_mismatch() {
-    panic("type mismatch\n");
+void __ubsan_handle_type_mismatch(type_mismatch_t* data, unsigned long addr) {
+    panic("%s:%lu: type mismatch: %lx\n", data->loc.file, data->loc.line, addr);
 }
 
-void __ubsan_handle_type_mismatch_v1() {
-    panic("type mismatch v1\n");
+void __ubsan_handle_type_mismatch_v1(type_mismatch_t* data, unsigned long addr) {
+    panic("%s:%lu: type mismatch v1: %lx, %d, %d\n", data->loc.file, data->loc.line, addr, data->type_check_kind, data->alignment);
 }
 
 void __ubsan_handle_out_of_bounds(out_of_bounds_t* data, unsigned long index) {
