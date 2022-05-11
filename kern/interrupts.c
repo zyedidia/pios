@@ -1,5 +1,12 @@
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "vm.h"
 #include "dev.h"
-#include "pios.h"
+#include "bits.h"
+#include "interrupts.h"
+#include "kern.h"
+#include "libc/tinyprintf.h"
 
 typedef struct {
     uint32_t irq_basic_pending;
@@ -11,7 +18,7 @@ typedef struct {
     uint32_t disable_basic_irqs;
 } irq_ctrl_t;
 
-static volatile irq_ctrl_t* const irq_ctrl = (irq_ctrl_t*) 0x2000B200;
+static volatile irq_ctrl_t* const irq_ctrl = (irq_ctrl_t*) pa2ka(0x2000B200);
 
 void irq_enable_basic(uint32_t irq) {
     irq_ctrl->enable_basic_irqs = bit_set(irq_ctrl->enable_basic_irqs, irq);
@@ -39,7 +46,7 @@ bool irq_pending(uint32_t irq) {
     return bit_get(irq_ctrl->irq_pending[irq / 32], irq % 32);
 }
 
-#define IRQ_VECTOR_START 0
+#define IRQ_VECTOR_START pa2ka(0)
 void irq_init_table() {
     irq_ctrl->disable_irqs[0] = 0xffffffff;
     irq_ctrl->disable_irqs[1] = 0xffffffff;

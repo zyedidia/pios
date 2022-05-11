@@ -28,14 +28,14 @@ asm_undef_insn:
 	mov sp, #INT_STACK_ADDR
 	ldr pc, _vec_undef_insn
 asm_software_irq:
-        mov sp, #INT_STACK_ADDR
-        sub lr, lr, #4
-        push {lr}
-        stmfd sp, {r0-r14}^
-        sub sp, sp, #60
-        mov r0, sp
-        bl syscall
-        ldm sp, {r0-r15}^
+	mov sp, #INT_STACK_ADDR
+	sub lr, lr, #4
+	push {lr}
+	stmfd sp, {r0-r14}^
+	sub sp, sp, #60
+	mov r0, sp
+	bl syscall
+	ldm sp, {r0-r15}^
 asm_prefetch_abort:
 	mov sp, #INT_STACK_ADDR
 	ldr pc, _vec_prefetch_abort
@@ -60,9 +60,9 @@ _vec_fiq:            .word vec_fiq
 
 .globl enable_interrupts
 enable_interrupts:
-	mrs     r0, cpsr
-	bic     r0, r0, #(1 << 7)
-	msr     cpsr_c, r0
+	mrs r0, cpsr
+	bic r0, r0, #(1 << 7)
+	msr cpsr_c, r0
 	bx lr
 
 .globl disable_interrupts

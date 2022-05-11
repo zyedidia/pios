@@ -1,5 +1,7 @@
 #pragma once
 
+#include "libc/tinyprintf.h"
+
 void reboot();
 void kernel_start();
 

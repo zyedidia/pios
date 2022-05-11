@@ -6,6 +6,7 @@
 #include "sys.h"
 #include "vm.h"
 #include "gpio.h"
+#include "interrupts.h"
 
 void reboot() {
     printf("DONE!!!\n");
@@ -26,6 +27,7 @@ void reboot() {
 void kernel_start() {
     sys_enable_cache();
 
+    irq_init_table();
     uart_init(115200);
     init_printf(NULL, uart_putc);
     printf("kernel booted\n");

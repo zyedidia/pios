@@ -47,10 +47,11 @@ static void map_kernel_pages() {
     // map one mb of stack
     map_early_page(STACK_ADDR - sec_size);
     // map code
-    extern char _ktext_start, _ktext_end;
-    for (uintptr_t ka = (uintptr_t) &_ktext_start; ka < (uintptr_t) &_ktext_end; ka += sec_size) {
-        map_early_page(ka2pa(ka));
-    }
+    map_early_page(0);
+    /* extern char _ktext_start, _ktext_end; */
+    /* for (uintptr_t ka = (uintptr_t) &_ktext_start; ka < (uintptr_t) &_ktext_end; ka += sec_size) { */
+    /*     map_early_page(ka2pa(ka)); */
+    /* } */
     // map uart, gpio, watchdog timer
     map_early_page(0x20000000);
     map_early_page(0x20100000);

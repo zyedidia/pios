@@ -96,42 +96,42 @@ void gpio_pud_off(unsigned pin) {
     gpio_apply_pud(pin);
 }
 
-/* void gpio_int_rise(unsigned pin) { */
-/*     if (pin >= 32) */
-/*         return; */
-/*     gpio_ren[0] = bit_set(gpio_ren[0], pin); */
-/*     irq_enable(GPIO_INT3); */
-/* } */
-/*  */
-/* void gpio_int_fall(unsigned pin) { */
-/*     if (pin >= 32) */
-/*         return; */
-/*     gpio_fen[0] = bit_set(gpio_fen[0], pin); */
-/*     irq_enable(GPIO_INT3); */
-/* } */
-/*  */
-/* void gpio_int_rise_async(unsigned pin) { */
-/*     if (pin >= 32) */
-/*         return; */
-/*     gpio_aren[0] = bit_set(gpio_aren[0], pin); */
-/*     irq_enable(GPIO_INT3); */
-/* } */
-/*  */
-/* void gpio_int_fall_async(unsigned pin) { */
-/*     if (pin >= 32) */
-/*         return; */
-/*     gpio_afen[0] = bit_set(gpio_afen[0], pin); */
-/*     irq_enable(GPIO_INT3); */
-/* } */
-/*  */
-/* int gpio_event_detect(unsigned pin) { */
-/*     if (pin >= 32) */
-/*         return 0; */
-/*     return bit_get(gpio_eds[0], pin); */
-/* } */
-/*  */
-/* void gpio_event_clear(unsigned pin) { */
-/*     if (pin >= 32) */
-/*         return; */
-/*     gpio_eds[0] = bit_set(gpio_eds[0], pin); */
-/* } */
+void gpio_int_rise(unsigned pin) {
+    if (pin >= 32)
+        return;
+    gpio_ren[0] = bit_set(gpio_ren[0], pin);
+    irq_enable(GPIO_INT3);
+}
+
+void gpio_int_fall(unsigned pin) {
+    if (pin >= 32)
+        return;
+    gpio_fen[0] = bit_set(gpio_fen[0], pin);
+    irq_enable(GPIO_INT3);
+}
+
+void gpio_int_rise_async(unsigned pin) {
+    if (pin >= 32)
+        return;
+    gpio_aren[0] = bit_set(gpio_aren[0], pin);
+    irq_enable(GPIO_INT3);
+}
+
+void gpio_int_fall_async(unsigned pin) {
+    if (pin >= 32)
+        return;
+    gpio_afen[0] = bit_set(gpio_afen[0], pin);
+    irq_enable(GPIO_INT3);
+}
+
+int gpio_event_detect(unsigned pin) {
+    if (pin >= 32)
+        return 0;
+    return bit_get(gpio_eds[0], pin);
+}
+
+void gpio_event_clear(unsigned pin) {
+    if (pin >= 32)
+        return;
+    gpio_eds[0] = bit_set(gpio_eds[0], pin);
+}
