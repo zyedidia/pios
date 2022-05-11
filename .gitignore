@@ -5,6 +5,7 @@
 *.elf
 *.so
 *.vcd
+.*.sw*
 /boot/firmware
 trace.txt
 tools/piprog/piprog
