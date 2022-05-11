@@ -47,11 +47,23 @@ static inline uintptr_t align_off(uintptr_t ptr, size_t align) {
     return ((~ptr) + 1) & (align - 1);
 }
 
+// void syscall(user_regs_t* regs) {
+//     printf("Hello, world...\n");
+// 
+//     reboot();
+// }
+
 void kernel_start() {
     sys_enable_cache();
 
     uart_init(115200);
     init_printf(NULL, uart_putc);
+
+#if 0
+    irq_init_table();
+    register_irq_vec(IRQ_VEC_SOFTWARE_IRQ, (void*)syscall);
+    enable_interrupts();
+#endif
 
     // pick physical space for prog. eventually we should use an allocator, for
     // now let's just put it right at the end of the heap.
@@ -66,9 +78,6 @@ void kernel_start() {
     uint8_t *vdata = (void*)0x8000;
     for (size_t i = 0; i < n_prog; i++) vdata[i] = prog[i];
     heap_end += n_prog;
-
-    printf("Instruction at 0x8000 is: %x\n", *(unsigned*)0x8000);
-    printf("Instruction at 0x8010 is: %x\n", *(unsigned*)0x8010);
 
     unsigned (*entry)(void) = (void*)0x8000;
     unsigned res = entry();

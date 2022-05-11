@@ -1,7 +1,7 @@
 #pragma once
 
 #define STACK_ADDR     0x8000000
-#define INT_STACK_ADDR 0x9000000
+#define INT_STACK_ADDR 0x89000000
 
 // from A2-2
 #define USER_MODE  0b10000
