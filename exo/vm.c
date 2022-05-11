@@ -1,5 +1,5 @@
-#include "vm.h"
-#include "pios.h"
+#include "exo/vm.h"
+#include "shared/pios.h"
 
 static pde_t* pgdir;
 

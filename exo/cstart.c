@@ -1,8 +1,8 @@
 #include <stdint.h>
 
 #include "libc/tinyprintf.h"
-#include "pios.h"
-#include "uart.h"
+#include "shared/pios.h"
+#include "lib/uart.h"
 
 void reboot() {
     printf("DONE!!!\n");

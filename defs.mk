@@ -35,7 +35,7 @@ $(PIOS_OBJ_NOSAN): ASAN_FLAGS := -DSANITIZE=$(SANITIZE)
 	$(CC) $(CFLAGS) $(ASAN_FLAGS) $< -c -o $@
 
 %.o: %.s
-	$(CPP) $< | $(AS) $(ASFLAGS) -c -o $@
+	$(CPP) $(CPPFLAGS) $< | $(AS) $(ASFLAGS) -c -o $@
 
 %.bin: %.elf
 	$(OBJCOPY) $< -O binary $@

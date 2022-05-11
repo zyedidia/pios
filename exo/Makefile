@@ -1,12 +1,15 @@
-include pios.mk
-include defs.mk
+include exo.mk
+include ../defs.mk
 
 O ?= s
 
 CFLAGS += -MMD
-DEP = $(PIOS_OBJ:.o=.d)
+CFLAGS += -I$(PIOS)
+ASFLAGS += -I$(PIOS)
+CPPFLAGS += -I$(PIOS)
+DEP = $(EXO_OBJ:.o=.d)
 
-all: $(PIOS_OBJ)
+all: $(EXO_OBJ)
 
 clean:
 	rm -f *.list *.o *.elf *.bin
