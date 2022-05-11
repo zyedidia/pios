@@ -7,7 +7,7 @@
 
 extern void _hlt();
 
-static pte_1mb_t __attribute__((aligned(1 << 14))) early_pagetable[4096];
+pte_1mb_t __attribute__((aligned(1 << 14))) early_pagetable[4096];
 
 static void vm_map_early(uintptr_t va, uintptr_t pa) {
     pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) early_pagetable);
