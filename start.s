@@ -4,8 +4,6 @@
 
 .globl _start
 _start:
-	# force the mode to be super
-	mov r0, #SUPER_MODE
 	# disable interrupts
 	orr r0, r0, #(1 << 7)
 	msr cpsr, r0
