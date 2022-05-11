@@ -9,7 +9,7 @@ DEP = $(PIOS_OBJ:.o=.d)
 all: $(PIOS_OBJ)
 
 clean:
-	rm -f *.list *.o *.elf *.bin
+	rm -f *.d *.list *.o *.elf *.bin
 
 -include $(DEP)
 
