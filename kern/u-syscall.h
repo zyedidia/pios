@@ -22,7 +22,10 @@ static inline uintptr_t syscall_2(int sysno, uintptr_t arg0, uintptr_t arg1) {
     asm volatile("swi 0" : "+r"(r0), "+r"(r1), "+r"(r2) : : "memory");
     return r0;
 }
-static inline uintptr_t syscall_3(int sysno, uintptr_t arg0, uintptr_t arg1, uintptr_t arg2) {
+static inline uintptr_t syscall_3(int sysno,
+                                  uintptr_t arg0,
+                                  uintptr_t arg1,
+                                  uintptr_t arg2) {
     register uintptr_t r0 asm("r0") = sysno;
     register uintptr_t r1 asm("r1") = arg0;
     register uintptr_t r2 asm("r2") = arg1;

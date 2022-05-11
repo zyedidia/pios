@@ -96,8 +96,10 @@ void __ubsan_handle_type_mismatch(type_mismatch_t* data, unsigned long addr) {
     panic("%s:%lu: type mismatch: %lx\n", data->loc.file, data->loc.line, addr);
 }
 
-void __ubsan_handle_type_mismatch_v1(type_mismatch_t* data, unsigned long addr) {
-    panic("%s:%lu: type mismatch v1: %lx, %d, %d\n", data->loc.file, data->loc.line, addr, data->type_check_kind, data->alignment);
+void __ubsan_handle_type_mismatch_v1(type_mismatch_t* data,
+                                     unsigned long addr) {
+    panic("%s:%lu: type mismatch v1: %lx, %d, %d\n", data->loc.file,
+          data->loc.line, addr, data->type_check_kind, data->alignment);
 }
 
 void __ubsan_handle_out_of_bounds(out_of_bounds_t* data, unsigned long index) {

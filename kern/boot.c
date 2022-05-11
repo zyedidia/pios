@@ -1,9 +1,9 @@
 #include <stdint.h>
 
-#include "kern.h"
 #include "asm.h"
-#include "vm.h"
+#include "kern.h"
 #include "sys.h"
+#include "vm.h"
 
 extern void _hlt();
 
@@ -41,11 +41,12 @@ static void map_early_page(uintptr_t pa) {
     vm_map_early(pa2ka(pa), pa);
 }
 
-static const unsigned sec_size = (1 << 20); // 1mb
+static const unsigned sec_size = (1 << 20);  // 1mb
 
 static void map_kernel_pages() {
     // map one mb of stack
     map_early_page(STACK_ADDR - sec_size);
+    map_early_page(INT_STACK_ADDR_PHYS - sec_size);
     // map code
     map_early_page(0);
     // map uart, gpio, watchdog timer
@@ -60,7 +61,8 @@ static void unmap_low_pages() {
     vm_unmap_sec(STACK_ADDR - sec_size);
     // map code
     extern char _ktext_start, _ktext_end;
-    for (uintptr_t ka = (uintptr_t) &_ktext_start; ka < (uintptr_t) &_ktext_end; ka += sec_size) {
+    for (uintptr_t ka = (uintptr_t) &_ktext_start; ka < (uintptr_t) &_ktext_end;
+         ka += sec_size) {
         vm_unmap_sec(ka2pa(ka));
     }
     // map uart, gpio, watchdog timer

@@ -1,12 +1,13 @@
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
-#include "vm.h"
-#include "dev.h"
 #include "bits.h"
+#include "dev.h"
 #include "interrupts.h"
 #include "kern.h"
+#include "sys.h"
+#include "vm.h"
 
 typedef struct {
     uint32_t irq_basic_pending;
@@ -46,8 +47,17 @@ bool irq_pending(uint32_t irq) {
     return bit_get(irq_ctrl->irq_pending[irq / 32], irq % 32);
 }
 
-#define IRQ_VECTOR_START pa2ka(0)
-void irq_init_table() {
+void irq_init() {
+    irq_ctrl->disable_irqs[0] = 0xffffffff;
+    irq_ctrl->disable_irqs[1] = 0xffffffff;
+    dev_barrier();
+
+    extern char _interrupt_table;
+    uintptr_t addr = (uintptr_t) &_interrupt_table;
+    sys_set_vec_base(addr);
+}
+
+void irq_init_table(uintptr_t addr) {
     irq_ctrl->disable_irqs[0] = 0xffffffff;
     irq_ctrl->disable_irqs[1] = 0xffffffff;
     dev_barrier();
@@ -55,10 +65,12 @@ void irq_init_table() {
     extern char _interrupt_table;
     extern char _interrupt_table_end;
 
-    char* dst = (char*) IRQ_VECTOR_START;
+    char* dst = (char*) addr;
     char* src = (char*) &_interrupt_table;
     size_t n = &_interrupt_table_end - src;
     memcpy(dst, src, n);
+
+    sys_set_vec_base(addr);
 }
 
 extern uintptr_t _vector_table;

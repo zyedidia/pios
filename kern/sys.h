@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #define CPU_FREQ_MHZ 700
 
 #define SYS_MMU_ENABLE               (1 << 0)
@@ -16,6 +18,16 @@ static inline void dsb() {
 
 static inline void dmb() {
     asm volatile("mcr p15, 0, r0, c7, c10, 5");
+}
+
+static inline void sys_set_vec_base(uintptr_t addr) {
+    asm volatile("mcr p15, 0, %0, c12, c0, 0" : : "r"(addr));
+}
+
+static inline uintptr_t sys_get_vec_base() {
+    uintptr_t addr;
+    asm volatile("mrc p15, 0, %0, c12, c0, 0" : "=r"(addr));
+    return addr;
 }
 
 static inline void sys_prefetch_flush() {

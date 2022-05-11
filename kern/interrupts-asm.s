@@ -2,6 +2,7 @@
 
 .globl _interrupt_table
 .globl _interrupt_table_end
+.align 5
 _interrupt_table:
 	ldr pc, _reset_h
 	ldr pc, _undef_insn_h

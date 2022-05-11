@@ -1,13 +1,13 @@
 #include <stdint.h>
 
 #include "asm.h"
-#include "kern.h"
-#include "uart.h"
-#include "sys.h"
-#include "vm.h"
 #include "gpio.h"
 #include "interrupts.h"
+#include "kern.h"
 #include "ksan.h"
+#include "sys.h"
+#include "uart.h"
+#include "vm.h"
 
 void reboot() {
     printf("DONE!!!\n");
@@ -34,7 +34,7 @@ void kernel_start() {
 
     uart_init(115200);
     init_printf(NULL, uart_putc);
-    irq_init_table();
+    irq_init();
 
     printf("kernel booted\n");
 

@@ -30,6 +30,6 @@ qemu-gdb: kern.bin
 	$(GDB) -ex "file kern.elf" -ex "target remote localhost:1234"
 
 format:
-	clang-format -i $(PIOS_CSRC) $(PIOS_HSRC)
+	clang-format -i $(KERN_CSRC) $(KERN_HSRC)
 
 .PHONY: format all install
