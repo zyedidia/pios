@@ -1,5 +1,5 @@
-#include "shared/dev.h"
-#include "shared/pios.h"
+#include "dev.h"
+#include "pios.h"
 
 typedef struct {
     uint32_t irq_basic_pending;

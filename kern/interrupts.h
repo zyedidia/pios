@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define BASIC_TIMER_IRQ          0
 #define BASIC_MAILBOX_IRQ        1

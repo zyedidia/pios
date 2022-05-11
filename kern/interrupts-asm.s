@@ -1,4 +1,4 @@
-#include "shared/asm.h"
+#include "asm.h"
 
 .globl _interrupt_table
 .globl _interrupt_table_end

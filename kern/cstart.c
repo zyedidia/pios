@@ -1,8 +1,7 @@
 #include <stdint.h>
 
 #include "libc/tinyprintf.h"
-#include "shared/pios.h"
-#include "lib/uart.h"
+#include "pios.h"
 
 void reboot() {
     printf("DONE!!!\n");
@@ -30,7 +29,7 @@ void cstart() {
         *bss++ = 0;
     }
 
-    timer_init();
+    /* timer_init(); */
     uart_init(115200);
     init_printf(NULL, uart_putc);
 

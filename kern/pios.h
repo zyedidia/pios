@@ -1,15 +1,13 @@
 #pragma once
 
-#include "shared/bits.h"
-#include "lib/gpio.h"
-#include "lib/i2c.h"
-#include "exo/interrupts.h"
-#include "exo/kmalloc.h"
-#include "shared/ksan.h"
+#include "bits.h"
+#include "interrupts.h"
+#include "kmalloc.h"
+#include "ksan.h"
 #include "libc/tinyprintf.h"
-#include "lib/timer.h"
-#include "lib/uart.h"
-#include "exo/vm.h"
+#include "vm.h"
+#include "sys.h"
+#include "uart.h"
 
 void kernel_start();
 void reboot();

@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "exo/kmalloc.h"
-#include "shared/pios.h"
+#include "kmalloc.h"
+#include "pios.h"
 
 union align {
     double d;

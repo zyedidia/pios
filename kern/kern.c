@@ -1,4 +1,4 @@
-#include "shared/pios.h"
+#include "pios.h"
 
 extern int main();
 
