@@ -1,13 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-
-enum {
-    SYSCALL_EXIT = 0,
-    SYSCALL_ALLOC_PAGE,
-    SYSCALL_DEALLOC_PAGE,
-    SYSCALL_VM_MAP,
-};
+#include "syscall_list.h"
 
 typedef struct {
     uint32_t r0;

@@ -1,26 +1,22 @@
-// TODO MASOT #include "syscalls.h"
+#include "../kern/syscall_list.h"
 
-#define SYSCALL_ALLOC_PHYS_PAGE     1
-#define SYSCALL_MMU_MAP             2
-#define SYSCALL_EXIT                3
-#define ARG_ANY_PAGE                -1
-#define ARG_PAGE_4KB                0
 #define STACK_ADDR                  0x8000000
 
 .section ".boot"
 
 .globl _start
 _start:
-    mov r0, #SYSCALL_ALLOC_PHYS_PAGE
-    mov r1, #ARG_ANY_PAGE
-    mov r2, #ARG_PAGE_4KB
+    mov r0, #SYSCALL_ALLOC_PAGE
+    mov r1, #SYSCALL_ARG_ANY_PAGE
+    mov r2, #SYSCALL_ARG_PAGE_4KB
     swi 0                           // result in r0
 
-    mov r1, r0                      // physical page
-    mov r2, #STACK_ADDR             // virtual page
-    sub r2, r2, #4096               // start of page for stack
-    mov r3, #ARG_PAGE_4KB           // size
-    mov r0, #SYSCALL_MMU_MAP
+    mov r1, #STACK_ADDR             // virtual page
+    sub r1, r1, #4096               // start of page for stack
+    mov r2, r0                      // physical page
+    mov r3, #0                      // flags
+    mov r4, #SYSCALL_ARG_PAGE_4KB   // size
+    mov r0, #SYSCALL_VM_MAP
     swi 0
 
     mov sp, #STACK_ADDR             // Now we have a stack !

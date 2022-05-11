@@ -18,3 +18,10 @@ void reboot();
         printf(format, ##args); \
         reboot();               \
     } while (0)
+
+#define assert(x)  \
+    while (!(x)) {                      \
+        printf("ASSERTION FAIL: ");     \
+        printf("%s\n", #x);         \
+        reboot();                       \
+    }
