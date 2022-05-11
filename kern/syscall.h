@@ -19,4 +19,5 @@ typedef struct {
     uint32_t r12;
     uint32_t r13;
     uint32_t r14;
+    uint32_t r15;
 } user_regs_t;

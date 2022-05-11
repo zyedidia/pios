@@ -6,6 +6,8 @@
 #include "sys.h"
 #include "vm.h"
 #include "gpio.h"
+#include "syscall.h"
+#include "interrupts.h"
 
 void reboot() {
     printf("DONE!!!\n");
@@ -47,11 +49,10 @@ static inline uintptr_t align_off(uintptr_t ptr, size_t align) {
     return ((~ptr) + 1) & (align - 1);
 }
 
-// void syscall(user_regs_t* regs) {
-//     printf("Hello, world...\n");
-// 
-//     reboot();
-// }
+void syscall(user_regs_t* regs) {
+    printf("Hello, world from a syscall...\n");
+    regs->r15 += 4;
+}
 
 void kernel_start() {
     sys_enable_cache();
@@ -59,11 +60,11 @@ void kernel_start() {
     uart_init(115200);
     init_printf(NULL, uart_putc);
 
-#if 0
     irq_init_table();
     register_irq_vec(IRQ_VEC_SOFTWARE_IRQ, (void*)syscall);
     enable_interrupts();
-#endif
+
+    asm volatile("swi 0");
 
     // pick physical space for prog. eventually we should use an allocator, for
     // now let's just put it right at the end of the heap.

@@ -1,5 +1,14 @@
+#include <stdint.h>
+
+#include "asm.h"
+#include "kern.h"
+#include "uart.h"
+#include "sys.h"
+#include "vm.h"
+#include "gpio.h"
+#include "interrupts.h"
+#include "bits.h"
 #include "dev.h"
-#include "pios.h"
 
 typedef struct {
     uint32_t irq_basic_pending;
@@ -11,7 +20,7 @@ typedef struct {
     uint32_t disable_basic_irqs;
 } irq_ctrl_t;
 
-static volatile irq_ctrl_t* const irq_ctrl = (irq_ctrl_t*) 0x2000B200;
+static volatile irq_ctrl_t* const irq_ctrl = (irq_ctrl_t*) pa2ka(0x2000B200);
 
 void irq_enable_basic(uint32_t irq) {
     irq_ctrl->enable_basic_irqs = bit_set(irq_ctrl->enable_basic_irqs, irq);
@@ -39,21 +48,20 @@ bool irq_pending(uint32_t irq) {
     return bit_get(irq_ctrl->irq_pending[irq / 32], irq % 32);
 }
 
-#define IRQ_VECTOR_START 0
 void irq_init_table() {
     irq_ctrl->disable_irqs[0] = 0xffffffff;
     irq_ctrl->disable_irqs[1] = 0xffffffff;
     dev_barrier();
 
     extern unsigned _interrupt_table;
-    extern unsigned _interrupt_table_end;
+    // extern unsigned _interrupt_table_end;
 
-    volatile unsigned* dst = (unsigned*) IRQ_VECTOR_START;
-    unsigned* src = &_interrupt_table;
-    unsigned n = &_interrupt_table_end - src;
-    for (unsigned i = 0; i < n; i++) {
-        dst[i] = src[i];
+    unsigned high_vec_base = (unsigned)&_interrupt_table;
+    printf("Interrupt table is at: %x\n", high_vec_base);
+    for (size_t i = 0; i < 6; i++) {
+        printf("Interrupt %u does instruction %x\n", i, ((unsigned*)high_vec_base)[i]);
     }
+    asm volatile("mcr p15, 0, %0, c12, c0, 0" : : "r"(high_vec_base));
 }
 
 extern uintptr_t _vector_table;
