@@ -5,12 +5,12 @@
 #include "sys.h"
 #include "vm.h"
 
-extern void _hlt();
+extern void __attribute__((section(".text.boot"))) _hlt();
 
-static pte_1mb_t __attribute__((aligned(1 << 14))) early_pagetable[4096];
+static pte_1mb_t __attribute__((aligned(1 << 14), section(".bss.boot"))) early_pagetable[4096];
 
-static void vm_map_early(uintptr_t va, uintptr_t pa) {
-    pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) early_pagetable);
+static void __attribute__((section(".text.boot"))) vm_map_early(uintptr_t va, uintptr_t pa) {
+    pte_1mb_t* pgtbl = early_pagetable;
 
     unsigned pte_idx = va >> 20;
     pte_1mb_t* pte = &pgtbl[pte_idx];
@@ -24,10 +24,8 @@ static void vm_map_early(uintptr_t va, uintptr_t pa) {
 }
 
 static void vm_unmap_sec(uintptr_t va) {
-    pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) early_pagetable);
-
     unsigned pte_idx = va >> 20;
-    pte_1mb_t* pte = &pgtbl[pte_idx];
+    pte_1mb_t* pte = &early_pagetable[pte_idx];
 
     if (pte->tag != 0b10) {
         _hlt();
@@ -36,17 +34,18 @@ static void vm_unmap_sec(uintptr_t va) {
     pte->tag = 0b00;
 }
 
-static void map_early_page(uintptr_t pa) {
+static void __attribute__((section(".text.boot"))) map_early_page(uintptr_t pa) {
     vm_map_early(pa, pa);
     vm_map_early(pa2ka(pa), pa);
 }
 
-static const unsigned sec_size = (1 << 20);  // 1mb
+// 1mb
+#define SEC_SIZE (1 << 20)
 
-static void map_kernel_pages() {
+static void __attribute__((section(".text.boot"))) map_kernel_pages() {
     // map one mb of stack
-    map_early_page(STACK_ADDR - sec_size);
-    map_early_page(INT_STACK_ADDR_PHYS - sec_size);
+    map_early_page(STACK_ADDR - SEC_SIZE);
+    map_early_page(INT_STACK_ADDR_PHYS - SEC_SIZE);
     // map code
     map_early_page(0);
     // map uart, gpio, watchdog timer
@@ -58,11 +57,10 @@ static void map_kernel_pages() {
 
 static void unmap_low_pages() {
     // map one mb of stack
-    vm_unmap_sec(STACK_ADDR - sec_size);
+    vm_unmap_sec(STACK_ADDR - SEC_SIZE);
     // map code
     extern char _ktext_start, _ktext_end;
-    for (uintptr_t ka = (uintptr_t) &_ktext_start; ka < (uintptr_t) &_ktext_end;
-         ka += sec_size) {
+    for (uintptr_t ka = (uintptr_t) &_ktext_start; ka < (uintptr_t) &_ktext_end; ka += SEC_SIZE) {
         vm_unmap_sec(ka2pa(ka));
     }
     // map uart, gpio, watchdog timer
@@ -76,7 +74,7 @@ static void unmap_low_pages() {
     dsb();
 }
 
-static void vm_enable_early() {
+static void __attribute__((section(".text.boot"))) vm_enable_early() {
     sys_invalidate_cache();
     sys_invalidate_tlb();
     dsb();
@@ -87,7 +85,7 @@ static void vm_enable_early() {
                           SYS_WRITE_BUFFER_ENABLE | SYS_MMU_XP);
 }
 
-void cstart() {
+void __attribute__((section(".text.boot"))) cstart() {
     extern int _kbss_start, _kbss_end;
 
     int* bss = (int*) ka2pa((uintptr_t) &_kbss_start);
@@ -100,10 +98,8 @@ void cstart() {
     map_kernel_pages();
     vm_enable_early();
 
-    extern void jump_to_ka();
-    jump_to_ka();
-    unmap_low_pages();
-
+    extern void stack_to_ka();
+    stack_to_ka();
     kernel_start();
     // shouldn't return
     _hlt();

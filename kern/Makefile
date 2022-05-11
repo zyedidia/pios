@@ -25,7 +25,7 @@ clean:
 qemu: kern.elf
 	$(QEMU) -M $(BOARD) -nographic -kernel $< -serial null -serial mon:stdio -no-reboot
 
-qemu-gdb: kern.bin
+qemu-gdb: kern.elf
 	$(QEMU) -s -S -M $(BOARD) -nographic -kernel $< -serial null -serial mon:stdio -no-reboot &
 	$(GDB) -ex "file kern.elf" -ex "target remote localhost:1234"
 

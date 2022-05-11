@@ -4,7 +4,7 @@
 	mov reg, #0;            \
 	mcr p15, 0, reg, c7, c5, 4
 
-.section ".boot"
+.section ".text.start.boot"
 
 .globl _start
 _start:
@@ -23,8 +23,7 @@ _start:
 _hlt:
 	b _hlt
 
-.globl jump_to_ka
-jump_to_ka:
+.globl stack_to_ka
+stack_to_ka:
 	orr sp, sp, #(1 << 31)
-	orr lr, lr, #(1 << 31)
 	bx lr

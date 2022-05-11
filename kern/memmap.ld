@@ -1,6 +1,19 @@
+ENTRY(_boot_start)
+
 SECTIONS
 {
-    .text 0x80008000 :  {
+    .text.boot 0x8000 : {
+        _boot_start = .;
+        KEEP(*(.text.start.boot))
+        KEEP(*(.text.boot))
+        _boot_end = .;
+        . = ALIGN(8);
+    }
+
+    /* rest of kernel is at high addresses */
+    . = . | (1 << 31);
+
+    .text :  {
         _ktext_start = .;
         KEEP(*(.boot))  
         *(.text*) 
@@ -18,6 +31,15 @@ SECTIONS
         . = ALIGN(4);
         _kdata_end = .;
     } 
+
+    . = . & ~(1 << 31);
+    .bss.boot : {
+        . = ALIGN(4);
+        KEEP(*(.bss.boot))
+        . = ALIGN(8);
+    }
+    . = . | (1 << 31);
+
     .bss : {
         . = ALIGN(4);
         _kbss_start = .;
@@ -28,4 +50,6 @@ SECTIONS
         . = ALIGN(8);
         _kheap_start = .;
     }
+
+    /DISCARD/ : { *(.eh_frame .note.GNU-stack) }
 }
