@@ -50,8 +50,31 @@ static inline uintptr_t align_off(uintptr_t ptr, size_t align) {
 }
 
 void syscall(user_regs_t* regs) {
-    printf("Hello, world from a syscall...\n");
     regs->r15 += 4;
+    switch (regs->r0) {
+        case SYSCALL_EXIT:
+            printf("Got exit syscall with argument %lu\n", regs->r1);
+            reboot(); // TODO: Just exit that process, not the whole thing ...
+            break;
+        case SYSCALL_ALLOC_PAGE:
+            assert(regs->r1 == SYSCALL_ARG_ANY_PAGE);
+            assert(regs->r2 == SYSCALL_ARG_PAGE_1MB);
+            printf("Got alloc page syscall for any page, 1MB long.\n");
+            heap_end += align_off(heap_end, 1024*1024);
+            regs->r0 = heap_end;
+            heap_end += 1024*1024;
+            break;
+        case SYSCALL_VM_MAP:;
+            uint32_t va = regs->r1,
+                     pa = regs->r2,
+                     flags = regs->r3,
+                     size = regs->r4;
+            assert(size == SYSCALL_ARG_PAGE_1MB);
+            printf("Got VM_MAP syscall for va=%x, pa=%x, flags=%x, 1MB.\n",
+                   va, pa, flags);
+            vm_map_section(va, pa);
+            break;
+    }
 }
 
 void kernel_start() {

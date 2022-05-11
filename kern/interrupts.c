@@ -57,10 +57,6 @@ void irq_init_table() {
     // extern unsigned _interrupt_table_end;
 
     unsigned high_vec_base = (unsigned)&_interrupt_table;
-    printf("Interrupt table is at: %x\n", high_vec_base);
-    for (size_t i = 0; i < 6; i++) {
-        printf("Interrupt %u does instruction %x\n", i, ((unsigned*)high_vec_base)[i]);
-    }
     asm volatile("mcr p15, 0, %0, c12, c0, 0" : : "r"(high_vec_base));
 }
 

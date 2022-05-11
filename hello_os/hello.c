@@ -13,5 +13,10 @@ unsigned main() {
 
     init_printf(NULL, uart_putc);
     printf("Hello, world!\n");
+
+    unsigned sp = 0;
+    asm volatile("mov %0, sp" : "=r"(sp));
+    printf("My stack appears to be at %x\n", sp);
+
     return 24;
 }

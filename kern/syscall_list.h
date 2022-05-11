@@ -7,3 +7,4 @@
 
 #define SYSCALL_ARG_ANY_PAGE    -1
 #define SYSCALL_ARG_PAGE_4KB    0
+#define SYSCALL_ARG_PAGE_1MB    1
