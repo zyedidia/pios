@@ -21,3 +21,8 @@ _start:
 	bl cstart
 _hlt:
 	b _hlt
+
+.globl jump_to_ka
+jump_to_ka:
+	orr lr, lr, #(1 << 31)
+	bx lr

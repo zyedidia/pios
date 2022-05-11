@@ -2,6 +2,14 @@
 
 #include <stdint.h>
 
+static inline uintptr_t pa2ka(uintptr_t pa) {
+    return pa | (1 << 31);
+}
+
+static inline uintptr_t ka2pa(uintptr_t ka) {
+    return ka & ~(1 << 31);
+}
+
 typedef struct {
     unsigned tag           : 2;
     unsigned b             : 1;
@@ -75,4 +83,5 @@ enum {
 
 void vm_init();
 void vm_map(uintptr_t va, uintptr_t pa, unsigned flags);
+void vm_unmap(uintptr_t va);
 void vm_enable();

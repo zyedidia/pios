@@ -29,10 +29,5 @@ void cstart() {
         *bss++ = 0;
     }
 
-    /* timer_init(); */
-    uart_init(115200);
-    init_printf(NULL, uart_putc);
-
     kernel_start();
-    reboot();
 }

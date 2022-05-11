@@ -6,7 +6,7 @@ unsigned syscall_alloc_page(uint32_t page_addr, uint32_t page_size) {
     assert(page_addr == SYSCALL_ARG_ANY_PAGE);
     assert(page_size == SYSCALL_ARG_PAGE_4KB);
 
-    unimplemented("SYSCALL_ALLOC_PAGE");
+    panic("SYSCALL_ALLOC_PAGE");
 
     return -1;
 }
@@ -14,7 +14,7 @@ unsigned syscall_alloc_page(uint32_t page_addr, uint32_t page_size) {
 unsigned syscall_vm_map(uint32_t va, uint32_t pa, uint32_t flags, uint32_t page_size) {
     assert(page_size == SYSCALL_ARG_PAGE_4KB);
 
-    unimplemented("SYSCALL_VM_MAP");
+    panic("SYSCALL_VM_MAP");
 
     return -1;
 }
@@ -32,7 +32,7 @@ void syscall(user_regs_t* regs) {
 
     case SYSCALL_DEALLOC_PAGE:;
         void* addr = (void*)regs->r1;
-        unimplemented("SYSCALL_DEALLOC_PAGE");
+        panic("SYSCALL_DEALLOC_PAGE");
         break;
 
     case SYSCALL_VM_MAP:

@@ -34,6 +34,23 @@ void vm_map(uintptr_t va, uintptr_t pa, unsigned flags) {
     }
 }
 
+void vm_unmap(uintptr_t va) {
+    unsigned pde_idx = va >> 20;
+    pde_t* pde = &pgdir[pde_idx];
+
+    switch (pde->tag) {
+        case 0b00:
+            return;
+        case 0b01:;
+            pte_small_t* pgtbl = (pte_small_t*) (pde->addr << 10);
+            pte_small_t* pte = &pgtbl[bits_get(va, 12, 19)];
+            memset(pte, 0, sizeof(pte_small_t));
+            break;
+        default:
+            return;
+    }
+}
+
 void vm_enable() {
     sys_invalidate_cache();
     sys_invalidate_tlb();
