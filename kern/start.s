@@ -1,5 +1,9 @@
 #include "asm.h"
 
+#define prefetch_flush(reg) \
+	mov reg, #0;            \
+	mcr p15, 0, reg, c7, c5, 4
+
 .section ".boot"
 
 .globl _start
