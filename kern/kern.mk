@@ -8,4 +8,14 @@ KERN_SSRC = $(wildcard $(KERN)/*.s)
 
 KERN_OBJ_NOSAN = $(KERN)/ksan.o $(KERN)/cstart.o $(KERN)/start.o $(KERN)/gpio.o $(KERN)/kmalloc.o $(KERN)/libc/tinyprintf.o
 KERN_OBJ = $(KERN_CSRC:.c=.o) $(KERN_SSRC:.s=.o)
-KERN_OBJ = $(KERN)/boot.o $(KERN)/start.o $(KERN)/uart.o $(KERN)/gpio.o $(KERN)/kern.o $(KERN)/interrupts-asm.o $(KERN)/interrupts.o $(KERN)/syscall.o $(PIOS)/libc/tinyprintf.o
+KERN_OBJ = $(KERN)/boot.o            \
+		   $(KERN)/start.o           \
+		   $(KERN)/uart.o            \
+		   $(KERN)/gpio.o            \
+		   $(KERN)/kern.o            \
+		   $(KERN)/interrupts-asm.o  \
+		   $(KERN)/interrupts.o      \
+		   $(KERN)/syscall.o         \
+		   $(KERN)/kmalloc.o         \
+		   $(KERN)/ksan.o            \
+		   $(PIOS)/libc/tinyprintf.o

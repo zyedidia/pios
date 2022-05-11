@@ -1,9 +1,9 @@
+#if (SANITIZE == 1)
+
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "pios.h"
-
-#if (SANITIZE == 1)
+#include "kern.h"
 
 typedef struct {
     const char* file;

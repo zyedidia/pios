@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "kern.h"
 #include "kmalloc.h"
-#include "pios.h"
 
 union align {
     double d;
@@ -18,17 +18,24 @@ typedef union free_hdr { /* block header */
     union align x; /* force alignment of blocks */
 } free_hdr_t;
 
-extern char __heap_start__;
-uintptr_t heap_end = (uintptr_t) &__heap_start__;
+extern char _kheap_start;
+uintptr_t heap_start() {
+    return (uintptr_t) &_kheap_start;
+}
+
+static uintptr_t _kheap_end = (uintptr_t) &_kheap_start;
+uintptr_t heap_end() {
+    return _kheap_end;
+}
 
 static inline uintptr_t align_off(uintptr_t ptr, size_t align) {
     return ((~ptr) + 1) & (align - 1);
 }
 
 static void* sbrk(size_t size) {
-    void* ret = (void*) heap_end;
-    heap_end += size;
-    heap_end += align_off(heap_end, __alignof__(free_hdr_t));
+    void* ret = (void*) _kheap_end;
+    _kheap_end += size;
+    _kheap_end += align_off(_kheap_end, __alignof__(free_hdr_t));
     return ret;
 }
 
@@ -168,17 +175,15 @@ static void asan_access(unsigned long addr, size_t sz, bool write) {
         return;
     }
 
-    extern char __code_start__, __code_end__;
-    if (write && in_range((char*) addr, &__code_start__, &__code_end__)) {
+    extern char _ktext_start, _ktext_end;
+    if (write && in_range((char*) addr, &_ktext_start, &_ktext_end)) {
         panic("write to code segment: 0x%lx\n", addr);
     }
-    extern char __rodata_start__, __rodata_end__;
-    if (write && in_range((char*) addr, &__rodata_start__, &__rodata_end__)) {
+    extern char _krodata_start, _krodata_end;
+    if (write && in_range((char*) addr, &_krodata_start, &_krodata_end)) {
         panic("write to read-only data segment: 0x%lx\n", addr);
     }
-    extern char __heap_start__;
-    extern uintptr_t heap_end;
-    if (in_range((char*) addr, &__heap_start__, (char*) heap_end)) {
+    if (in_range((char*) addr, &_kheap_start, (char*) _kheap_end)) {
         asan_hdr_t* h = alloc_list;
         while (h) {
             if (in_range((char*) addr, blk_start(h), blk_end(h))) {

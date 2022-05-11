@@ -7,6 +7,7 @@
 #include "vm.h"
 #include "gpio.h"
 #include "interrupts.h"
+#include "ksan.h"
 
 void reboot() {
     printf("DONE!!!\n");
@@ -25,6 +26,10 @@ void reboot() {
 }
 
 void kernel_start() {
+#if (SANITIZE == 1)
+    asan_enable();
+#endif
+
     sys_enable_cache();
 
     irq_init_table();

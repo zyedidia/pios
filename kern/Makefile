@@ -11,8 +11,6 @@ ASFLAGS += $(INCLUDE)
 CPPFLAGS += $(INCLUDE)
 DEP = $(KERN_OBJ:.o=.d)
 
-all: $(KERN_OBJ)
-
 kern.elf: $(KERN_OBJ)
 	$(LD) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
