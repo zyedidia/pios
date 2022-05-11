@@ -19,10 +19,12 @@ _start:
 	# clear frame pointer
 	mov fp, #0
 	bl cstart
+.globl _hlt
 _hlt:
 	b _hlt
 
 .globl jump_to_ka
 jump_to_ka:
+	orr sp, sp, #(1 << 31)
 	orr lr, lr, #(1 << 31)
 	bx lr

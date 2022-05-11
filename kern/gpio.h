@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "vm.h"
+
 enum {
     GPIO_TX = 14,
     GPIO_RX = 15,
@@ -21,7 +23,7 @@ typedef enum {
     GPIO_FUNC_ALT5 = 2,
 } gpio_func_t;
 
-#define GPIO_BASE 0x20200000
+#define GPIO_BASE pa2ka(0x20200000U)
 
 static volatile uint32_t* gpio_set = (uint32_t*) (GPIO_BASE + 0x1C);
 static volatile uint32_t* gpio_clr = (uint32_t*) (GPIO_BASE + 0x28);

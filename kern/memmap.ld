@@ -1,32 +1,31 @@
 SECTIONS
 {
-    .text 0x8000 :  { 
-        __code_start__ = .;
+    .text 0x80008000 :  {
+        _ktext_start = .;
         KEEP(*(.boot))  
         *(.text*) 
-        __code_end__ = .;
+        _ktext_end = .;
         . = ALIGN(8);
     }
     .rodata : {
-        __rodata_start__ = .;
+        _krodata_start = .;
         *(.rodata*)
-        __rodata_end__ = .;
+        _krodata_end = .;
     }
     .data : { 
-        __data_start__ = .;
+        _kdata_start = .;
         *(.data*) 
         . = ALIGN(4);
-        __data_end__ = .;
+        _kdata_end = .;
     } 
     .bss : {
         . = ALIGN(4);
-        __bss_start__ = .;
+        _kbss_start = .;
         *(.bss*)
         *(COMMON)
         . = ALIGN(8);
-        __bss_end__ = .;
+        _kbss_end = .;
         . = ALIGN(8);
-        __prog_end__ = .;
-        __heap_start__ = .;
+        _kheap_start = .;
     }
 }

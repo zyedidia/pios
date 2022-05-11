@@ -2,13 +2,8 @@
 
 #include <stdint.h>
 
-static inline uintptr_t pa2ka(uintptr_t pa) {
-    return pa | (1 << 31);
-}
-
-static inline uintptr_t ka2pa(uintptr_t ka) {
-    return ka & ~(1 << 31);
-}
+#define pa2ka(pa) ((pa | (1 << 31)))
+#define ka2pa(ka) ((ka & ~(1 << 31)))
 
 typedef struct {
     unsigned tag           : 2;

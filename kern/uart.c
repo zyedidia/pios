@@ -28,8 +28,8 @@ typedef struct {
 #define CLEAR_FIFOS   (CLEAR_TX_FIFO | CLEAR_RX_FIFO)
 #define IIR_RESET     ((0b11 << 6) | 1)
 
-static volatile uint32_t* const aux_enables = (uint32_t*) 0x20215004;
-static volatile aux_periphs_t* const uart = (aux_periphs_t*) 0x20215040;
+static volatile uint32_t* const aux_enables = (uint32_t*) pa2ka(0x20215004);
+static volatile aux_periphs_t* const uart = (aux_periphs_t*) pa2ka(0x20215040);
 
 void uart_init(unsigned baud) {
     gpio_set_func(GPIO_TX, GPIO_FUNC_ALT5);
