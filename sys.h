@@ -186,3 +186,9 @@ static inline void sys_set_tlb_base(unsigned base) {
     asm volatile("mcr p15, 0, %0, c2, c0, 0" : : "r"(base));
     asm volatile("mcr p15, 0, %0, c2, c0, 1" : : "r"(base));
 }
+
+static inline unsigned get_dfar() {
+    unsigned dfar = 0;
+    asm volatile("mrc p15, 0, %0, c6, c0, 0" : "=r"(dfar));
+    return dfar;
+}
