@@ -6,7 +6,6 @@
 
 .globl _start
 _start:
-    bx lr
     // mov r0, #SYSCALL_ALLOC_PAGE
     // mov r1, #SYSCALL_ARG_ANY_PAGE
     // mov r2, #SYSCALL_ARG_PAGE_4KB
@@ -23,7 +22,10 @@ _start:
     // mov sp, #STACK_ADDR             // Now we have a stack !
     // sub sp, sp, #4
 
-    // bl main
+    push {lr}
+    bl main
+    pop {lr}
+    bx lr
 
     // mov r0, #SYSCALL_EXIT
     // swi 0

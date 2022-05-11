@@ -67,12 +67,13 @@ void kernel_start() {
     for (size_t i = 0; i < n_prog; i++) vdata[i] = prog[i];
     heap_end += n_prog;
 
-    printf("Hello, world !\n");
-
     printf("Instruction at 0x8000 is: %x\n", *(unsigned*)0x8000);
+    printf("Instruction at 0x8010 is: %x\n", *(unsigned*)0x8010);
 
-    void (*entry)(void) = (void*)0x8000;
-    entry();
+    unsigned (*entry)(void) = (void*)0x8000;
+    unsigned res = entry();
+
+    printf("Got exit %u\n", res);
 
     printf("kernel booted\n");
 
