@@ -10,6 +10,7 @@ static inline uintptr_t align_off(uintptr_t ptr, uint32_t align) {
     return ((~ptr) + 1) & (align - 1);
 }
 
+// returns pa
 void *smalloc_aligned(uint32_t size, uint32_t alignment) {
     heap_end += align_off(heap_end, alignment);
     uintptr_t pa = ka2pa(heap_end);
