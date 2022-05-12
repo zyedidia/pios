@@ -13,7 +13,7 @@ SECTIONS
     /* rest of kernel is at high addresses */
     . = . | (1 << 31);
 
-    .text :  {
+    .text : AT (0x8180) {
         _ktext_start = .;
         KEEP(*(.boot))  
         *(.text*) 
@@ -31,14 +31,6 @@ SECTIONS
         . = ALIGN(4);
         _kdata_end = .;
     } 
-
-    . = . & ~(1 << 31);
-    .bss.boot : {
-        . = ALIGN(4);
-        KEEP(*(.bss.boot))
-        . = ALIGN(8);
-    }
-    . = . | (1 << 31);
 
     .bss : {
         . = ALIGN(4);

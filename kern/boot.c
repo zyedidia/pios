@@ -7,10 +7,10 @@
 
 extern void __attribute__((section(".text.boot"))) _hlt();
 
-static pte_1mb_t __attribute__((aligned(1 << 14), section(".bss.boot"))) early_pagetable[4096];
+static pte_1mb_t __attribute__((aligned(1 << 14))) early_pagetable[4096];
 
 static void __attribute__((section(".text.boot"))) vm_map_early(uintptr_t va, uintptr_t pa) {
-    pte_1mb_t* pgtbl = early_pagetable;
+    pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) early_pagetable);
 
     unsigned pte_idx = va >> 20;
     pte_1mb_t* pte = &pgtbl[pte_idx];
@@ -53,6 +53,7 @@ static void __attribute__((section(".text.boot"))) map_kernel_pages() {
     map_early_page(0x20100000);
     map_early_page(0x20200000);
     sys_clean_and_invalidate_cache();
+    sys_invalidate_tlb();
 }
 
 static void unmap_low_pages() {
@@ -87,10 +88,8 @@ static void __attribute__((section(".text.boot"))) vm_enable_early() {
 
 void __attribute__((section(".text.boot"))) cstart() {
     extern int _kbss_start, _kbss_end;
-
     int* bss = (int*) ka2pa((uintptr_t) &_kbss_start);
     int* bss_end = (int*) ka2pa((uintptr_t) &_kbss_end);
-
     while (bss < bss_end) {
         *bss++ = 0;
     }

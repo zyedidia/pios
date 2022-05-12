@@ -18,7 +18,7 @@ ARCH = armv6zk
 
 PIOS ?= $(shell git rev-parse --show-toplevel)
 
-CFLAGS = -O$(O) -g -Wall -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU) -Wa,-march=$(ARCH) -fPIC
+CFLAGS = -O$(O) -g -Wall -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU) -Wa,-march=$(ARCH)
 ASFLAGS = -mcpu=$(CPU) -march=$(ARCH)
 LDFLAGS = -T $(MEMMAP)
 LDLIBS = $(LIBGCC)
