@@ -9,9 +9,11 @@ static pte_1mb_t __attribute__((aligned(1 << 14))) kernel_pagetable[4096];
 
 // all functions in this file go in .text.boot so they exist at low addresses
 // (these functions run before the MMU is enabled).
-static void __attribute__((section(".text.boot"))) vm_kernel_map(uintptr_t va, uintptr_t pa);
+static void __attribute__((section(".text.boot")))
+vm_kernel_map(uintptr_t va, uintptr_t pa);
 static void __attribute__((section(".text.boot"))) vm_kernel_enable();
-static void __attribute__((section(".text.boot"))) dmap_kernel_section(uintptr_t pa);
+static void __attribute__((section(".text.boot")))
+dmap_kernel_section(uintptr_t pa);
 static void __attribute__((section(".text.boot"))) dmap_kernel_sections();
 void __attribute__((section(".text.boot"))) cstart();
 extern void __attribute__((section(".text.boot"))) _hlt();
@@ -82,6 +84,6 @@ void cstart() {
 
     extern void stack_to_ka();
     stack_to_ka();
-    kernel_start(); // shouldn't return
+    kernel_start();  // shouldn't return
     _hlt();
 }

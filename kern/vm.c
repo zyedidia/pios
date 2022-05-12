@@ -1,6 +1,6 @@
+#include "vm.h"
 #include "kern.h"
 #include "sys.h"
-#include "vm.h"
 
 static pde_t* pgdir;
 

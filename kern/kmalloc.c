@@ -3,8 +3,8 @@
 
 #include "kern.h"
 #include "kmalloc.h"
-#include "vm.h"
 #include "lib.h"
+#include "vm.h"
 
 // allocates pages of size 4096
 #define MIN_ORDER 12
@@ -88,9 +88,10 @@ void init_kalloc() {
 
         unsigned order = pages[pn].order;
         while (valid(pn, order)) {
-            uintptr_t bpn = get_buddy(pn); // buddy pn
+            uintptr_t bpn = get_buddy(pn);  // buddy pn
             // We can coalesce backwards
-            if (bpn < pn && pages[bpn].free == pages[pn].free && pages[bpn].order == pages[pn].order) {
+            if (bpn < pn && pages[bpn].free == pages[pn].free &&
+                pages[bpn].order == pages[pn].order) {
                 // Merge blocks
                 pages[bpn].order++;
                 order++;
@@ -189,7 +190,8 @@ void kfree(void* ptr) {
     unsigned order = pages[pn].order;
     // TODO (asan): mark page as free
 
-    while (bpn != (uintptr_t) -1 && pages[bpn].free && pages[bpn].order == pages[pn].order) {
+    while (bpn != (uintptr_t) -1 && pages[bpn].free &&
+           pages[bpn].order == pages[pn].order) {
         // coalesce
         ll_free_remove(pn_to_free(bpn), pages[pn].order);
 
