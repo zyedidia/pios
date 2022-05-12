@@ -44,10 +44,7 @@ static void dmap_kernel_section(uintptr_t pa) {
 
 // double map all kernel regions
 static void dmap_kernel_sections() {
-    // map one mb of stack
-    dmap_kernel_section(STACK_ADDR - SEC_SIZE);
-    dmap_kernel_section(INT_STACK_ADDR_PHYS - SEC_SIZE);
-    // map code/heap
+    // map kernel
     for (uintptr_t pa = 0; pa < MEMSIZE_PHYSICAL; pa += SEC_SIZE) {
         dmap_kernel_section(pa);
     }

@@ -23,13 +23,13 @@ _fiq_h:            .word   asm_fiq
 _interrupt_table_end:
 
 asm_reset:
-	mov sp, #INT_STACK_ADDR
+	ldr sp, =kstack
 	bl reboot
 asm_undef_insn:
-	mov sp, #INT_STACK_ADDR
+	ldr sp, =kstack
 	ldr pc, _vec_undef_insn
 asm_software_irq:
-	mov sp, #INT_STACK_ADDR
+	ldr sp, =kstack
 	sub lr, lr, #4
 	push {lr}
 	stmfd sp, {r0-r14}^
@@ -38,16 +38,16 @@ asm_software_irq:
 	bl syscall
 	ldm sp, {r0-r15}^
 asm_prefetch_abort:
-	mov sp, #INT_STACK_ADDR
+	ldr sp, =kstack
 	ldr pc, _vec_prefetch_abort
 asm_data_abort:
-	mov sp, #INT_STACK_ADDR
+	ldr sp, =kstack
 	ldr pc, _vec_data_abort
 asm_irq:
-	mov sp, #INT_STACK_ADDR
+	ldr sp, =kstack
 	ldr pc, _vec_irq
 asm_fiq:
-	mov sp, #INT_STACK_ADDR
+	ldr sp, =kstack
 	ldr pc, _vec_fiq
 
 .globl _vector_table

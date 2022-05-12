@@ -15,7 +15,7 @@ _start:
 	msr cpsr, r0
 	prefetch_flush(r1)
 
-	mov sp, #STACK_ADDR
+	ldr sp, =kstack_phys
 	# clear frame pointer
 	mov fp, #0
 	bl cstart
@@ -25,5 +25,5 @@ _hlt:
 
 .globl stack_to_ka
 stack_to_ka:
-	orr sp, sp, #(1 << 31)
+	ldr sp, =kstack
 	bx lr

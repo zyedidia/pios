@@ -40,8 +40,16 @@ SECTIONS
         . = ALIGN(8);
         _kbss_end = .;
         . = ALIGN(8);
-        _kheap_start = .;
     }
+
+    .kstack : {
+        . += 8K;
+    }
+
+    PROVIDE(kstack = .);
+    PROVIDE(kstack_phys = (. & ~(1 << 31)));
+
+    _kheap_start = .;
 
     /DISCARD/ : { *(.eh_frame .note.GNU-stack) }
 }
