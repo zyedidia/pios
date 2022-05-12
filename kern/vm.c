@@ -1,51 +1,53 @@
 #include "vm.h"
 #include "kern.h"
 #include "sys.h"
+#include "kmalloc.h"
+#include "bits.h"
 
-static pde_t* pgdir;
-
-void vm_init() {
-    pgdir = kmalloc_aligned(4096 * sizeof(pde_t), 1 << 14);
-    memset(pgdir, 0, 4096 * sizeof(pde_t));
+pagetable_t* kalloc_pt() {
+    pagetable_t* l1pt = (pagetable_t*) kmalloc(sizeof(pagetable_t));
+    memset(l1pt, 0, sizeof(pagetable_t));
+    return l1pt;
 }
 
 static void init_second_level(pde_t* pde) {
-    pte_small_t* pgtbl = kmalloc_aligned(256 * sizeof(pte_small_t), 1 << 10);
+    pte_small_t* pgtbl = kmalloc(256 * sizeof(pte_small_t));
     memset(pgtbl, 0, 256 * sizeof(pte_small_t));
     pde->addr = (uintptr_t) pgtbl >> 10;
     pde->tag = 0b01;
 }
 
-void vm_map(uintptr_t va, uintptr_t pa, pg_typ_t typ) {
-    unsigned pde_idx = va >> 20;
-    pde_t* pde = &pgdir[pde_idx];
+void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ) {
+    unsigned idx = va >> 20;
+    l1pte_t* l1pte = &pt->entries[idx];
 
-    switch (pde->tag) {
-        case 0b00:
-            init_second_level(pde);
-        case 0b01:;
-            pte_small_t* pgtbl = (pte_small_t*) (pde->addr << 10);
-            pte_small_t* pte = &pgtbl[bits_get(va, 12, 19)];
-            pte->addr = pa >> 12;
-            pte->ap = AP_NO_ACCESS;
-            pte->sz = 1;
+    switch (typ) {
+        case PAGE_UNMAPPED:
+            l1pte->pde.tag = 0b00;
+            break;
+        case PAGE_1MB:
+            l1pte->pte_1mb.tag = 0b10;
+            l1pte->pte_1mb.sec_base_addr = pa >> 20;
+            break;
+        case PAGE_4KB:
+            if (l1pte->pde.tag == 0b00) {
+                init_second_level(&l1pte->pde);
+            }
+            pte_small_t* l2pt = (pte_small_t*) (l1pte->pde.addr << 10);
+            pte_small_t* l2pte = &l2pt[bits_get(va, 12, 19)];
+            l2pte->addr = pa >> 12;
+            l2pte->ap = AP_NO_ACCESS;
+            l2pte->sz = 1;
             break;
         default:
-            panic("invalid pde tag: %d\n", pde->tag);
+            panic("invalid page type: %d\n", typ);
     }
 }
 
-void vm_unmap(uintptr_t va) {
-    vm_map(va, 0, PAGE_UNMAPPED);
+void vm_unmap(pagetable_t* pt, uintptr_t va) {
+    vm_map(pt, va, 0, PAGE_UNMAPPED);
 }
 
-void vm_enable() {
-    sys_invalidate_cache();
-    sys_invalidate_tlb();
-    dsb();
-    sys_set_domain(DOM_MANAGER);
-    sys_set_tlb_base((uintptr_t) pgdir);
-    sys_set_cache_control(SYS_MMU_ENABLE | SYS_DCACHE_ENABLE |
-                          SYS_ICACHE_ENABLE | SYS_BRANCH_PREDICTION_ENABLE |
-                          SYS_WRITE_BUFFER_ENABLE | SYS_MMU_XP);
+void vm_set_pt(pagetable_t* pt) {
+    sys_set_tlb_base((uintptr_t) pt);
 }

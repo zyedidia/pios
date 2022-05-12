@@ -17,6 +17,7 @@ KERN_OBJ = $(KERN)/boot.o            \
 		   $(KERN)/interrupts.o      \
 		   $(KERN)/syscall.o         \
 		   $(KERN)/kmalloc.o         \
+		   $(KERN)/vm.o              \
 		   $(KERN)/ksan.o            \
 		   $(PIOS)/libc/libc.o       \
 		   $(PIOS)/libc/tinyprintf.o

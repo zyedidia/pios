@@ -117,7 +117,7 @@ void init_kalloc() {
 
 // Allocate and returns a pointer to at least `sz` contiguous bytes of memory.
 // Returns `NULL` if `sz == 0` or on failure.
-void* kalloc(size_t sz) {
+void* kmalloc(size_t sz) {
     if (sz == 0) {
         return NULL;
     }
