@@ -1,5 +1,6 @@
+#include "kern.h"
+#include "sys.h"
 #include "vm.h"
-#include "pios.h"
 
 static pde_t* pgdir;
 
@@ -15,7 +16,7 @@ static void init_second_level(pde_t* pde) {
     pde->tag = 0b01;
 }
 
-void vm_map(uintptr_t va, uintptr_t pa, unsigned flags) {
+void vm_map(uintptr_t va, uintptr_t pa, pg_typ_t typ) {
     unsigned pde_idx = va >> 20;
     pde_t* pde = &pgdir[pde_idx];
 
@@ -26,7 +27,7 @@ void vm_map(uintptr_t va, uintptr_t pa, unsigned flags) {
             pte_small_t* pgtbl = (pte_small_t*) (pde->addr << 10);
             pte_small_t* pte = &pgtbl[bits_get(va, 12, 19)];
             pte->addr = pa >> 12;
-            pte->ap = AP_RW;
+            pte->ap = AP_NO_ACCESS;
             pte->sz = 1;
             break;
         default:
@@ -35,27 +36,14 @@ void vm_map(uintptr_t va, uintptr_t pa, unsigned flags) {
 }
 
 void vm_unmap(uintptr_t va) {
-    unsigned pde_idx = va >> 20;
-    pde_t* pde = &pgdir[pde_idx];
-
-    switch (pde->tag) {
-        case 0b00:
-            return;
-        case 0b01:;
-            pte_small_t* pgtbl = (pte_small_t*) (pde->addr << 10);
-            pte_small_t* pte = &pgtbl[bits_get(va, 12, 19)];
-            memset(pte, 0, sizeof(pte_small_t));
-            break;
-        default:
-            return;
-    }
+    vm_map(va, 0, PAGE_UNMAPPED);
 }
 
 void vm_enable() {
     sys_invalidate_cache();
     sys_invalidate_tlb();
     dsb();
-    sys_set_domain(DOM_CLIENT);
+    sys_set_domain(DOM_MANAGER);
     sys_set_tlb_base((uintptr_t) pgdir);
     sys_set_cache_control(SYS_MMU_ENABLE | SYS_DCACHE_ENABLE |
                           SYS_ICACHE_ENABLE | SYS_BRANCH_PREDICTION_ENABLE |

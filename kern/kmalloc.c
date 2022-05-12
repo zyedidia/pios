@@ -3,241 +3,207 @@
 
 #include "kern.h"
 #include "kmalloc.h"
+#include "vm.h"
+#include "lib.h"
 
-union align {
-    double d;
-    void* p;
-    void (*fp)(void);
-};
+// allocates pages of size 4096
+#define MIN_ORDER 12
+#define MAX_ORDER LOG_MEMSIZE_PHYSICAL
 
-typedef union free_hdr { /* block header */
-    struct {
-        union free_hdr* ptr; /* next block if on free list */
-        unsigned size;       /* size of this block */
-    } s;
-    union align x; /* force alignment of blocks */
-} free_hdr_t;
+typedef struct {
+    bool free;
+    unsigned order;
+} phys_page_t;
 
-extern char _kheap_start;
-uintptr_t heap_start() {
-    return (uintptr_t) &_kheap_start;
-}
+typedef struct free_page {
+    struct free_page* next;
+    struct free_page* prev;
+} free_page_t;
 
-static uintptr_t _kheap_end = (uintptr_t) &_kheap_start;
-uintptr_t heap_end() {
-    return _kheap_end;
-}
+// free list for each type of order
+static free_page_t* free_lists[MAX_ORDER + 1];
 
-static inline uintptr_t align_off(uintptr_t ptr, size_t align) {
-    return ((~ptr) + 1) & (align - 1);
-}
-
-static void* sbrk(size_t size) {
-    void* ret = (void*) _kheap_end;
-    _kheap_end += size;
-    _kheap_end += align_off(_kheap_end, __alignof__(free_hdr_t));
-    return ret;
-}
-
-static free_hdr_t base;          /* empty list to get started */
-static free_hdr_t* freep = NULL; /* start of free list */
-
-static void kr_free(void* ap);
-
-#define NALLOC 1024 /* minimum #units to request */
-/* morecore: ask system for more memory */
-static free_hdr_t* morecore(unsigned nu) {
-    char* cp;
-    free_hdr_t* up;
-    if (nu < NALLOC)
-        nu = NALLOC;
-    cp = sbrk(nu * sizeof(free_hdr_t));
-    if (cp == (char*) -1) /* no space at all */
-        return NULL;
-    up = (free_hdr_t*) cp;
-    up->s.size = nu;
-    kr_free((void*) (up + 1));
-    return freep;
-}
-
-static void* kr_malloc(size_t nbytes) {
-    free_hdr_t *p, *prevp;
-    unsigned nunits;
-    nunits = (nbytes + sizeof(free_hdr_t) - 1) / sizeof(free_hdr_t) + 1;
-    if ((prevp = freep) == NULL) { /* no free list yet */
-        base.s.ptr = freep = prevp = &base;
-        base.s.size = 0;
-    }
-    for (p = prevp->s.ptr;; prevp = p, p = p->s.ptr) {
-        if (p->s.size >= nunits) {   /* big enough */
-            if (p->s.size == nunits) /* exactly */
-                prevp->s.ptr = p->s.ptr;
-            else { /* allocate tail end */
-                p->s.size -= nunits;
-                p += p->s.size;
-                p->s.size = nunits;
-            }
-            freep = prevp;
-            return (void*) (p + 1);
-        }
-        if (p == freep) /* wrapped around free list */
-            if ((p = morecore(nunits)) == NULL)
-                return NULL; /* none left */
-    }
-}
-
-/* free: put block ap in free list */
-static void kr_free(void* ap) {
-    free_hdr_t *bp, *p;
-    bp = (free_hdr_t*) ap - 1; /* point to block header */
-    for (p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
-        if (p >= p->s.ptr && (bp > p || bp < p->s.ptr))
-            break; /* freed block at start or end of arena */
-    if (bp + bp->s.size == p->s.ptr) { /* join to upper nbr */
-        bp->s.size += p->s.ptr->s.size;
-        bp->s.ptr = p->s.ptr->s.ptr;
-    } else
-        bp->s.ptr = p->s.ptr;
-    if (p + p->s.size == bp) { /* join to lower nbr */
-        p->s.size += bp->s.size;
-        p->s.ptr = bp->s.ptr;
-    } else
-        p->s.ptr = bp;
-    freep = p;
-}
-
-#if (SANITIZE == 0)
-
-void* kmalloc(size_t sz) {
-    return kr_malloc(sz);
-}
-
-void kfree(void* p) {
-    kr_free(p);
-}
-
-#else
-
-typedef struct asan_hdr {
-    size_t size;
-    struct asan_hdr* next;
-    struct asan_hdr* prev;
-} asan_hdr_t;
-
-static asan_hdr_t* alloc_list;
-
-static void ll_insert(asan_hdr_t* n) {
-    n->next = alloc_list;
+static void ll_free_insert(free_page_t* n, int order) {
+    n->next = free_lists[order];
     n->prev = NULL;
-    if (alloc_list)
-        alloc_list->prev = n;
-    alloc_list = n;
+    if (free_lists[order])
+        free_lists[order]->prev = n;
+    free_lists[order] = n;
 }
 
-static void ll_remove(asan_hdr_t* n) {
+static void ll_free_remove(free_page_t* n, int order) {
     if (n->next)
         n->next->prev = n->prev;
     if (n->prev)
         n->prev->next = n->next;
     else
-        alloc_list = n->next;
+        free_lists[order] = n->next;
 }
 
-static char* blk_start(asan_hdr_t* h) {
-    return (char*) h + sizeof(asan_hdr_t);
+static phys_page_t pages[MEMSIZE_PHYSICAL / PAGESIZE];
+
+static uintptr_t pagenum(uintptr_t pa) {
+    return pa / PAGESIZE;
 }
 
-static char* blk_end(asan_hdr_t* h) {
-    return (char*) h + sizeof(asan_hdr_t) + h->size;
+static uintptr_t pageaddr(uintptr_t pn) {
+    return pn * PAGESIZE;
 }
 
-void* kmalloc(size_t sz) {
-    asan_hdr_t* h = (asan_hdr_t*) kr_malloc(sz + sizeof(asan_hdr_t));
-    h->size = sz;
-    ll_insert(h);
-    return (void*) blk_start(h);
+// Checks if a page number is valid for a given order
+static bool valid(uintptr_t pn, unsigned order) {
+    return pageaddr(pn) % (1 << order) == 0;
 }
 
-void kfree(void* p) {
-    asan_hdr_t* h = (asan_hdr_t*) ((char*) p - sizeof(asan_hdr_t));
-    ll_remove(h);
-    kr_free(h);
+// Returns the page number of the buddy of the page stored at pn. Returns -1 if
+// the given pn is not valid
+static uintptr_t get_buddy(uintptr_t pn) {
+    phys_page_t p = pages[pn];
+    if (p.order < MIN_ORDER || p.order > MAX_ORDER || !valid(pn, p.order)) {
+        return -1;
+    }
+
+    size_t pa = pageaddr(pn);
+    if (valid(pn, p.order + 1)) {
+        return pagenum(pa + (1 << p.order));
+    }
+    return pagenum(pa - (1 << p.order));
 }
 
-static bool asan = false;
-
-static bool in_range(char* addr, char* start, char* end) {
-    return addr >= start && addr < end;
+static free_page_t* pn_to_free(uintptr_t pn) {
+    return (free_page_t*) pa2ka(pageaddr(pn));
 }
 
-static void asan_access(unsigned long addr, size_t sz, bool write) {
-    if (!asan) {
+extern char _kheap_start;
+
+// Initialize everything needed for kalloc
+void init_kalloc() {
+    // Iterate through all heap memory, mark as free, and coalesce blocks
+    // together if possible
+    uintptr_t heap_start = (uintptr_t) &_kheap_start;
+    for (uintptr_t pa = heap_start; pa < MEMSIZE_PHYSICAL; pa += PAGESIZE) {
+        uintptr_t pn = pagenum(pa);
+        pages[pn].free = true;
+        pages[pn].order = MIN_ORDER;
+
+        unsigned order = pages[pn].order;
+        while (valid(pn, order)) {
+            uintptr_t bpn = get_buddy(pn); // buddy pn
+            // We can coalesce backwards
+            if (bpn < pn && pages[bpn].free == pages[pn].free && pages[bpn].order == pages[pn].order) {
+                // Merge blocks
+                pages[bpn].order++;
+                order++;
+                pages[pn].order = 0;
+                pn = bpn;
+            }
+            break;
+        }
+    }
+
+    // Now we set up the free lists by looping over each block and adding it to
+    // the list
+    uintptr_t pn = 0;
+    while (pn < pagenum(MEMSIZE_PHYSICAL)) {
+        phys_page_t page = pages[pn];
+        assert(valid(pn, page.order));
+        if (page.free) {
+            ll_free_insert(pn_to_free(pn), page.order);
+        }
+        pn += pagenum(1 << page.order);
+    }
+}
+
+// Allocate and returns a pointer to at least `sz` contiguous bytes of memory.
+// Returns `NULL` if `sz == 0` or on failure.
+void* kalloc(size_t sz) {
+    if (sz == 0) {
+        return NULL;
+    }
+
+    unsigned order = msb(sz - 1);
+    if (order < MIN_ORDER) {
+        order = MIN_ORDER;
+    }
+
+    bool has_mem = true;
+    while (has_mem) {
+        has_mem = false;
+        // Find a block that is >= the requested order. If we can't find such a
+        // block the allocation fails.
+        for (unsigned i = MIN_ORDER; i <= MAX_ORDER; i++) {
+            if (free_lists[i]) {
+                // found a free page
+                uintptr_t pa = ka2pa((uintptr_t) free_lists[i]);
+                uintptr_t pn = pagenum(pa);
+                assert(pages[pn].free);
+                assert(pages[pn].order == i);
+                if (order == i) {
+                    // The page matches the order so we can return it directly
+                    ll_free_remove(free_lists[i], i);
+                    pages[pn].free = false;
+                    // TODO (asan): mark page as allocated
+                    return (void*) pa2ka(pa);
+                } else if (i > order) {
+                    // We found a block that is greater than the requested
+                    // order so there are no blocks with the correct size. We
+                    // can split this block and try again.
+                    pages[pn].order = i - 1;
+                    uintptr_t bpn = get_buddy(pn);
+                    pages[bpn].order = i - 1;
+                    pages[bpn].free = true;
+
+                    // update free lists
+                    ll_free_remove(free_lists[i], i);
+                    ll_free_insert(pn_to_free(pn), i - 1);
+                    ll_free_insert(pn_to_free(bpn), i - 1);
+
+                    has_mem = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    // allocation failed
+    return NULL;
+}
+
+// Free a pointer previously returned by `kalloc`. Does nothing if `ptr ==
+// NULL`.
+void kfree(void* ptr) {
+    if (!ptr || (char*) ptr < &_kheap_start) {
         return;
     }
 
-    extern char _ktext_start, _ktext_end;
-    if (write && in_range((char*) addr, &_ktext_start, &_ktext_end)) {
-        panic("write to code segment: 0x%lx\n", addr);
+    uintptr_t pa = ka2pa((uintptr_t) ptr);
+    uintptr_t pn = pagenum(pa);
+
+    if (pages[pn].free) {
+        // page is already free
+        return;
     }
-    extern char _krodata_start, _krodata_end;
-    if (write && in_range((char*) addr, &_krodata_start, &_krodata_end)) {
-        panic("write to read-only data segment: 0x%lx\n", addr);
-    }
-    if (in_range((char*) addr, &_kheap_start, (char*) _kheap_end)) {
-        asan_hdr_t* h = alloc_list;
-        while (h) {
-            if (in_range((char*) addr, blk_start(h), blk_end(h))) {
-                return;
-            }
-            h = h->next;
+
+    pages[pn].free = true;
+    uintptr_t bpn = get_buddy(pn);
+    unsigned order = pages[pn].order;
+    // TODO (asan): mark page as free
+
+    while (bpn != (uintptr_t) -1 && pages[bpn].free && pages[bpn].order == pages[pn].order) {
+        // coalesce
+        ll_free_remove(pn_to_free(bpn), pages[pn].order);
+
+        if (valid(pn, pages[pn].order + 1)) {
+            order = ++pages[pn].order;
+            pages[bpn].order = 0;
+            bpn = get_buddy(pn);
+        } else if (valid(bpn, pages[pn].order + 1)) {
+            pages[pn].order = 0;
+            order = ++pages[bpn].order;
+            pn = bpn;
+            bpn = get_buddy(bpn);
         }
-        panic("illegal heap memory access: 0x%lx\n", addr);
     }
-}
 
-void __asan_load1_noabort(unsigned long addr) {
-    asan_access(addr, 1, false);
-}
-void __asan_load2_noabort(unsigned long addr) {
-    asan_access(addr, 2, false);
-}
-void __asan_load4_noabort(unsigned long addr) {
-    asan_access(addr, 4, false);
-}
-void __asan_load8_noabort(unsigned long addr) {
-    asan_access(addr, 8, false);
-}
-void __asan_loadN_noabort(unsigned long addr, size_t sz) {
-    asan_access(addr, sz, false);
-}
-
-void __asan_store1_noabort(unsigned long addr) {
-    asan_access(addr, 1, true);
-}
-void __asan_store2_noabort(unsigned long addr) {
-    asan_access(addr, 2, true);
-}
-void __asan_store4_noabort(unsigned long addr) {
-    asan_access(addr, 4, true);
-}
-void __asan_store8_noabort(unsigned long addr) {
-    asan_access(addr, 8, true);
-}
-void __asan_storeN_noabort(unsigned long addr, size_t sz) {
-    asan_access(addr, sz, true);
-}
-
-void __asan_handle_no_return() {}
-void __asan_before_dynamic_init(const char* module_name) {}
-void __asan_after_dynamic_init() {}
-
-void asan_enable() {
-    /* asan = true; */
-}
-
-#endif
-
-void* kmalloc_aligned(size_t sz, size_t align) {
-    uintptr_t x = (uintptr_t) kmalloc(sz + align);
-    return (void*) (x + align_off(x, align));
+    ll_free_insert(pn_to_free(pn), order);
 }

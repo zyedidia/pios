@@ -76,7 +76,15 @@ enum {
     DOM_MANAGER = 0b11,    // TLB access bits are ignored
 };
 
+typedef enum {
+    PAGE_UNMAPPED,
+    PAGE_4KB,
+    PAGE_16KB,
+    PAGE_1MB,
+    PAGE_16MB,
+} pg_typ_t;
+
 void vm_init();
-void vm_map(uintptr_t va, uintptr_t pa, unsigned flags);
+void vm_map(uintptr_t va, uintptr_t pa, pg_typ_t typ);
 void vm_unmap(uintptr_t va);
 void vm_enable();
