@@ -1,4 +1,5 @@
 #include "vm.h"
+#include "kern.h"
 #include "sys.h"
 
 // TODO: see comment in boot.c

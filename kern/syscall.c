@@ -2,6 +2,7 @@
 
 #include "kern.h"
 #include "syscall_list.h"
+#include "simple_malloc.h"
 #include "vm.h"
 
 typedef struct {
@@ -27,7 +28,7 @@ unsigned syscall_alloc_page(uint32_t page_addr, uint32_t page_size) {
     assert(page_addr == SYSCALL_ARG_ANY_PAGE);
     assert(page_size == SYSCALL_ARG_PAGE_1MB);
     printf("Got alloc page syscall for any page, 1MB long.\n");
-    uintptr_t ptr = smalloc_aligned(1024 * 1024, 1024 * 1024);
+    uintptr_t ptr = (uintptr_t)smalloc_aligned(1024 * 1024, 1024 * 1024);
     printf("Giving back physical page %x\n", ptr);
     return ptr;
 }

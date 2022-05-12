@@ -15,5 +15,5 @@ void *smalloc_aligned(uint32_t size, uint32_t alignment) {
     heap_end += align_off(heap_end, alignment);
     uintptr_t pa = ka2pa(heap_end);
     heap_end += size;
-    return pa;
+    return (void*)pa;
 }
