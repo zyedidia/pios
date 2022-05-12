@@ -29,13 +29,14 @@ asm_undef_insn:
 	ldr sp, =kstack
 	ldr pc, _vec_undef_insn
 asm_software_irq:
-	ldr sp, =kstack
+	ldr sp, =curproc
 	sub lr, lr, #4
 	push {lr}
 	stmfd sp, {r0-r14}^
-	sub sp, sp, #60
 	mov r0, sp
+	ldr sp, =kstack
 	bl syscall
+	ldr sp, =curproc
 	ldm sp, {r0-r15}^
 asm_prefetch_abort:
 	ldr sp, =kstack
