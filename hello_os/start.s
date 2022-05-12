@@ -12,7 +12,7 @@ _start:
     swi 0                           // result in r0
 
     mov r1, #STACK_ADDR             // virtual page
-    sub r1, r1, #4096               // start of page for stack
+    sub r1, r1, #(1024*1024)        // start of page for stack
     mov r2, r0                      // physical page
     mov r3, #0                      // flags
     mov r4, #SYSCALL_ARG_PAGE_1MB   // size
@@ -24,8 +24,8 @@ _start:
 
     bl main
 
+    mov r1, r0
     mov r0, #SYSCALL_EXIT
-    mov r1, #24
     swi 0
 
 .globl syscall

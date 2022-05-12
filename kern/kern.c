@@ -61,7 +61,8 @@ void syscall(user_regs_t* regs) {
             assert(regs->r2 == SYSCALL_ARG_PAGE_1MB);
             printf("Got alloc page syscall for any page, 1MB long.\n");
             heap_end += align_off(heap_end, 1024*1024);
-            regs->r0 = heap_end;
+            regs->r0 = ka2pa(heap_end);
+            printf("Giving back physical page %x\n", regs->r0);
             heap_end += 1024*1024;
             break;
         case SYSCALL_VM_MAP:;
@@ -86,8 +87,6 @@ void kernel_start() {
     irq_init_table();
     register_irq_vec(IRQ_VEC_SOFTWARE_IRQ, (void*)syscall);
     enable_interrupts();
-
-    asm volatile("swi 0");
 
     // pick physical space for prog. eventually we should use an allocator, for
     // now let's just put it right at the end of the heap.
