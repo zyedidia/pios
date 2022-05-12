@@ -18,9 +18,6 @@ static void __attribute__((section(".text.boot"))) dmap_kernel_sections();
 void __attribute__((section(".text.boot"))) cstart();
 extern void __attribute__((section(".text.boot"))) _hlt();
 
-// 1mb
-#define SEC_SIZE (1 << 20)
-
 // map va to pa in the kernel pagetable
 static void vm_kernel_map(uintptr_t va, uintptr_t pa) {
     pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) kernel_pagetable);
@@ -45,7 +42,7 @@ static void dmap_kernel_section(uintptr_t pa) {
 // double map all kernel regions
 static void dmap_kernel_sections() {
     // map kernel
-    for (uintptr_t pa = 0; pa < MEMSIZE_PHYSICAL; pa += SEC_SIZE) {
+    for (uintptr_t pa = 0; pa < MEMSIZE_PHYSICAL; pa += SIZE_1MB) {
         dmap_kernel_section(pa);
     }
     // map uart, gpio, watchdog timer

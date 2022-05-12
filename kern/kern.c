@@ -8,6 +8,8 @@
 #include "sys.h"
 #include "uart.h"
 #include "vm.h"
+#include "proc.h"
+#include "kmalloc.h"
 
 void reboot() {
     printf("DONE!!!\n");
@@ -35,8 +37,15 @@ void kernel_start() {
     uart_init(115200);
     init_printf(NULL, uart_putc);
     irq_init();
+    kmalloc_init();
 
     printf("kernel booted\n");
+
+    proc_t p_basic;
+    extern unsigned char prog_basic[];
+    extern size_t prog_basic_sz;
+    proc_new(&p_basic, &prog_basic[0], prog_basic_sz);
+    proc_run(&p_basic);
 
     reboot();
     return;

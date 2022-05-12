@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#define pa2ka(pa) ((pa | (1UL << 31)))
-#define ka2pa(ka) ((ka & ~(1UL << 31)))
+#define pa2ka(pa) (((pa) | (1UL << 31)))
+#define ka2pa(ka) (((ka) & ~(1UL << 31)))
 
 typedef struct {
     unsigned tag           : 2;
@@ -91,6 +91,11 @@ enum {
     DOM_RESERVED = 0b10,   // client accesses check against perm bits in TLB
     DOM_MANAGER = 0b11,    // TLB access bits are ignored
 };
+
+#define SIZE_4KB  (1 << 12)
+#define SIZE_16KB (1 << 14)
+#define SIZE_1MB  (1 << 20)
+#define SIZE_16MB (1 << 24)
 
 typedef enum {
     PAGE_UNMAPPED,

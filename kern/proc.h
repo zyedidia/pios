@@ -1,13 +1,12 @@
 #pragma once
 
 #include <stdint.h>
+#include <string.h>
 
 #include "vm.h"
 
 #define PROC_ENTRY 0x8000
 #define NPROC 16
-
-typedef uint32_t pid_t;
 
 typedef struct {
     uint32_t r0;
@@ -36,8 +35,14 @@ typedef enum {
 
 typedef struct {
     regs_t regs;
-    pid_t id;
+    uint32_t id;
     pagetable_t* pt;
+
+    uint8_t* code;
+    size_t codesz;
 
     proc_state_t state;
 } proc_t;
+
+void proc_new(proc_t* proc, uint8_t* code, size_t codesz);
+void proc_run(proc_t* proc);
