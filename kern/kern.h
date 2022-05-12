@@ -5,6 +5,7 @@
 void reboot();
 void kernel_start();
 
+// TODO: remove requirement that stack is above memsize physical
 #define LOG_MEMSIZE_PHYSICAL 21
 #define MEMSIZE_PHYSICAL (1 << LOG_MEMSIZE_PHYSICAL)
 
