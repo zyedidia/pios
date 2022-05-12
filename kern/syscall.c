@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 #include "kern.h"
-#include "syscall.h"
+#include "syscall_list.h"
 #include "vm.h"
 
 typedef struct {
@@ -46,7 +46,7 @@ void syscall(user_regs_t* regs) {
     unsigned sysno = regs->r0;
     switch (sysno) {
         case SYSCALL_EXIT:
-            printf("Exiting\n");
+            printf("Exiting with exit code %u\n", regs->r1);
             reboot();
             break;
         case SYSCALL_ALLOC_PAGE:;

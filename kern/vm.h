@@ -80,3 +80,5 @@ void vm_init();
 void vm_map(uintptr_t va, uintptr_t pa, unsigned flags);
 void vm_unmap(uintptr_t va);
 void vm_enable();
+void vm_map_section_into_early_pt(uintptr_t va, uintptr_t pa);
+void vm_flushem();

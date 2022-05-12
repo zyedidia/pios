@@ -7,7 +7,10 @@
 
 extern void _hlt();
 
-static pte_1mb_t __attribute__((aligned(1 << 14))) early_pagetable[4096];
+// TODO: masot marked non-static so we can hack some vm syscalls into kern.c.
+// Eventually should have a separate 'late' page table that differs from this
+// early_pagetable.
+pte_1mb_t __attribute__((aligned(1 << 14))) early_pagetable[4096];
 
 static void vm_map_early(uintptr_t va, uintptr_t pa) {
     pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) early_pagetable);
@@ -48,6 +51,7 @@ static void map_kernel_pages() {
     map_early_page(STACK_ADDR - sec_size);
     map_early_page(INT_STACK_ADDR_PHYS - sec_size);
     // map code
+    // TODO(masot): should probably assert that _ktext_end fits ?
     map_early_page(0);
     // map uart, gpio, watchdog timer
     map_early_page(0x20000000);
@@ -60,6 +64,8 @@ static void unmap_low_pages() {
     // map one mb of stack
     vm_unmap_sec(STACK_ADDR - sec_size);
     // map code
+    // TODO(masot): can this just unmap 0? since map_low_pages is now assuming
+    // small text
     extern char _ktext_start, _ktext_end;
     for (uintptr_t ka = (uintptr_t) &_ktext_start; ka < (uintptr_t) &_ktext_end;
          ka += sec_size) {

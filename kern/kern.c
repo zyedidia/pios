@@ -8,6 +8,7 @@
 #include "sys.h"
 #include "uart.h"
 #include "vm.h"
+#include "simple_malloc.h"
 
 void reboot() {
     printf("DONE!!!\n");
@@ -38,6 +39,20 @@ void kernel_start() {
 
     printf("kernel booted\n");
 
+    // get one page for the prog, TODO(masot): check that it fits.
+    uint8_t *pdata = smalloc_aligned(1024 * 1024, 1024 * 1024);
+    vm_map_section_into_early_pt(0, (uintptr_t)pdata);
+    vm_flushem();
+
+    extern char prog[];
+    extern unsigned n_prog;
+    uint8_t *vdata = (void*)0x8000;
+    for (size_t i = 0; i < n_prog; i++) vdata[i] = prog[i];
+
+    unsigned (*entry)(void) = (void*)vdata;
+    entry();
+
+    printf("ERROR: Libos ret'd without calling SYSCALL_EXIT!\n");
     reboot();
     return;
 }
