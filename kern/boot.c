@@ -5,11 +5,22 @@
 #include "sys.h"
 #include "vm.h"
 
-extern void __attribute__((section(".text.boot"))) _hlt();
-
 static pte_1mb_t __attribute__((aligned(1 << 14))) early_pagetable[4096];
 
-static void __attribute__((section(".text.boot"))) vm_map_early(uintptr_t va, uintptr_t pa) {
+// all functions in this file go in .text.boot so they exist at low addresses
+// (these functions run before the MMU is enabled).
+static void __attribute__((section(".text.boot"))) vm_early_map(uintptr_t va, uintptr_t pa);
+static void __attribute__((section(".text.boot"))) vm_early_enable();
+static void __attribute__((section(".text.boot"))) dmap_early_section(uintptr_t pa);
+static void __attribute__((section(".text.boot"))) dmap_kernel_sections();
+void __attribute__((section(".text.boot"))) cstart();
+extern void __attribute__((section(".text.boot"))) _hlt();
+
+// 1mb
+#define SEC_SIZE (1 << 20)
+
+// map va to pa in the early pagetable
+static void vm_early_map(uintptr_t va, uintptr_t pa) {
     pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) early_pagetable);
 
     unsigned pte_idx = va >> 20;
@@ -23,59 +34,29 @@ static void __attribute__((section(".text.boot"))) vm_map_early(uintptr_t va, ui
     pte->sec_base_addr = pa >> 20;
 }
 
-static void vm_unmap_sec(uintptr_t va) {
-    unsigned pte_idx = va >> 20;
-    pte_1mb_t* pte = &early_pagetable[pte_idx];
-
-    if (pte->tag != 0b10) {
-        _hlt();
-    }
-
-    pte->tag = 0b00;
+// double map pa as pa -> pa and pa2ka(pa) -> pa
+static void dmap_early_section(uintptr_t pa) {
+    vm_early_map(pa, pa);
+    vm_early_map(pa2ka(pa), pa);
 }
 
-static void __attribute__((section(".text.boot"))) map_early_page(uintptr_t pa) {
-    vm_map_early(pa, pa);
-    vm_map_early(pa2ka(pa), pa);
-}
-
-// 1mb
-#define SEC_SIZE (1 << 20)
-
-static void __attribute__((section(".text.boot"))) map_kernel_pages() {
+// double map all kernel regions
+static void dmap_kernel_sections() {
     // map one mb of stack
-    map_early_page(STACK_ADDR - SEC_SIZE);
-    map_early_page(INT_STACK_ADDR_PHYS - SEC_SIZE);
+    dmap_early_section(STACK_ADDR - SEC_SIZE);
+    dmap_early_section(INT_STACK_ADDR_PHYS - SEC_SIZE);
     // map code
-    map_early_page(0);
+    dmap_early_section(0);
     // map uart, gpio, watchdog timer
-    map_early_page(0x20000000);
-    map_early_page(0x20100000);
-    map_early_page(0x20200000);
+    dmap_early_section(0x20000000);
+    dmap_early_section(0x20100000);
+    dmap_early_section(0x20200000);
     sys_clean_and_invalidate_cache();
     sys_invalidate_tlb();
 }
 
-static void unmap_low_pages() {
-    // map one mb of stack
-    vm_unmap_sec(STACK_ADDR - SEC_SIZE);
-    // map code
-    extern char _ktext_start, _ktext_end;
-    for (uintptr_t ka = (uintptr_t) &_ktext_start; ka < (uintptr_t) &_ktext_end; ka += SEC_SIZE) {
-        vm_unmap_sec(ka2pa(ka));
-    }
-    // map uart, gpio, watchdog timer
-    vm_unmap_sec(0x20000000);
-    vm_unmap_sec(0x20100000);
-    vm_unmap_sec(0x20200000);
-    sys_clean_and_invalidate_cache();
-    sys_flush_btb();
-    sys_invalidate_tlb();
-    sys_prefetch_flush();
-    dsb();
-}
-
-static void __attribute__((section(".text.boot"))) vm_enable_early() {
+// enable the early pagetable
+static void vm_early_enable() {
     sys_invalidate_cache();
     sys_invalidate_tlb();
     dsb();
@@ -86,7 +67,7 @@ static void __attribute__((section(".text.boot"))) vm_enable_early() {
                           SYS_WRITE_BUFFER_ENABLE | SYS_MMU_XP);
 }
 
-void __attribute__((section(".text.boot"))) cstart() {
+void cstart() {
     extern int _kbss_start, _kbss_end;
     int* bss = (int*) ka2pa((uintptr_t) &_kbss_start);
     int* bss_end = (int*) ka2pa((uintptr_t) &_kbss_end);
@@ -94,12 +75,11 @@ void __attribute__((section(".text.boot"))) cstart() {
         *bss++ = 0;
     }
 
-    map_kernel_pages();
-    vm_enable_early();
+    dmap_kernel_sections();
+    vm_early_enable();
 
     extern void stack_to_ka();
     stack_to_ka();
-    kernel_start();
-    // shouldn't return
+    kernel_start(); // shouldn't return
     _hlt();
 }
