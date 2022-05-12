@@ -13,9 +13,9 @@ SECTIONS
     /* rest of kernel is at high addresses */
     . = . | (1 << 31);
 
-    .text : AT (0x8180) {
+    /* load at low LMA with high VMA */
+    .text : AT (ADDR(.text) & ~(1 << 31)) {
         _ktext_start = .;
-        KEEP(*(.boot))  
         *(.text*) 
         _ktext_end = .;
         . = ALIGN(8);

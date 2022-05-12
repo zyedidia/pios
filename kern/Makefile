@@ -11,8 +11,8 @@ ASFLAGS += $(INCLUDE)
 CPPFLAGS += $(INCLUDE)
 DEP = $(KERN_OBJ:.o=.d)
 
-kern.elf: $(KERN_OBJ)
-	$(LD) $(LDFLAGS) $^ $(LDLIBS) -o $@
+kern.elf: $(MEMMAP) $(KERN_OBJ)
+	$(LD) $(LDFLAGS) $(filter-out $<,$^) $(LDLIBS) -o $@
 
 install: kern.bin
 	pi-install $<
