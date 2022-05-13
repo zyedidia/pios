@@ -4,19 +4,19 @@
 #include "gpio.h"
 #include "interrupts.h"
 #include "kern.h"
+#include "kmalloc.h"
 #include "ksan.h"
+#include "proc.h"
 #include "sys.h"
 #include "uart.h"
 #include "vm.h"
-#include "proc.h"
-#include "kmalloc.h"
 
 void reboot() {
     printf("DONE!!!\n");
     uart_tx_flush();
 
-    volatile uint32_t* PM_RSTC = (uint32_t*) pa2ka(0x2010001c);
-    volatile uint32_t* PM_WDOG = (uint32_t*) pa2ka(0x20100024);
+    volatile uint32_t *PM_RSTC = (uint32_t *) pa2ka(0x2010001c);
+    volatile uint32_t *PM_WDOG = (uint32_t *) pa2ka(0x20100024);
 
     const int PM_PASSWORD = 0x5a000000;
     const int PM_RSTC_WRCFG_FULL_RESET = 0x00000020;

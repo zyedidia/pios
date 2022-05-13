@@ -112,8 +112,12 @@ typedef enum {
     RW_KER_ONLY,
 } protection_typ_t;
 
-pagetable_t* kalloc_pt();
-void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ, protection_typ_t protection);
-void vm_unmap(pagetable_t* pt, uintptr_t va);
-void vm_set_pt(pagetable_t* pt);
+pagetable_t *kalloc_pt();
+void vm_map(pagetable_t *pt,
+            uintptr_t va,
+            uintptr_t pa,
+            pg_typ_t typ,
+            protection_typ_t protection);
+void vm_unmap(pagetable_t *pt, uintptr_t va);
+void vm_set_pt(pagetable_t *pt);
 void vm_flushem();

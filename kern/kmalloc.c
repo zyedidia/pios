@@ -3,9 +3,9 @@
 
 #include "kern.h"
 #include "kmalloc.h"
+#include "ksan.h"
 #include "lib.h"
 #include "vm.h"
-#include "ksan.h"
 
 // allocates pages of size 4096
 #define MIN_ORDER 12
@@ -17,14 +17,14 @@ typedef struct {
 } phys_page_t;
 
 typedef struct free_page {
-    struct free_page* next;
-    struct free_page* prev;
+    struct free_page *next;
+    struct free_page *prev;
 } free_page_t;
 
 // free list for each type of order
-static free_page_t* free_lists[MAX_ORDER + 1];
+static free_page_t *free_lists[MAX_ORDER + 1];
 
-static void ll_free_insert(free_page_t* n, int order) {
+static void ll_free_insert(free_page_t *n, int order) {
     n->next = free_lists[order];
     n->prev = NULL;
     if (free_lists[order])
@@ -32,7 +32,7 @@ static void ll_free_insert(free_page_t* n, int order) {
     free_lists[order] = n;
 }
 
-static void ll_free_remove(free_page_t* n, int order) {
+static void ll_free_remove(free_page_t *n, int order) {
     if (n->next)
         n->next->prev = n->prev;
     if (n->prev)
@@ -63,8 +63,8 @@ static uintptr_t get_buddy(uintptr_t pn) {
     return pagenum(pa - (1 << p.order));
 }
 
-static free_page_t* pn_to_free(uintptr_t pn) {
-    return (free_page_t*) pa2ka(pageaddr(pn));
+static free_page_t *pn_to_free(uintptr_t pn) {
+    return (free_page_t *) pa2ka(pageaddr(pn));
 }
 
 extern char _kheap_start;
@@ -111,7 +111,7 @@ void kmalloc_init() {
 
 // Allocate and returns a pointer to at least `sz` contiguous bytes of memory.
 // Returns `NULL` if `sz == 0` or on failure.
-void* kmalloc(size_t sz) {
+void *kmalloc(size_t sz) {
     if (sz == 0) {
         return NULL;
     }
@@ -143,7 +143,7 @@ void* kmalloc(size_t sz) {
                     asan_mark_memory(pa, sz, true);
 #endif
 
-                    return (void*) pa2ka(pa);
+                    return (void *) pa2ka(pa);
                 } else if (i > order) {
                     // We found a block that is greater than the requested
                     // order so there are no blocks with the correct size. We
@@ -171,8 +171,8 @@ void* kmalloc(size_t sz) {
 
 // Free a pointer previously returned by `kalloc`. Does nothing if `ptr ==
 // NULL`.
-void kfree(void* ptr) {
-    if (!ptr || (char*) ptr < &_kheap_start) {
+void kfree(void *ptr) {
+    if (!ptr || (char *) ptr < &_kheap_start) {
         return;
     }
 

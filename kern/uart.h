@@ -15,4 +15,4 @@ bool uart_tx_empty();
 void uart_tx_flush();
 
 // for tinyprintf
-void uart_putc(void* p, char c);
+void uart_putc(void *p, char c);

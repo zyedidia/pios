@@ -25,9 +25,9 @@ typedef enum {
 
 #define GPIO_BASE pa2ka(0x20200000U)
 
-static volatile uint32_t* gpio_set = (uint32_t*) (GPIO_BASE + 0x1C);
-static volatile uint32_t* gpio_clr = (uint32_t*) (GPIO_BASE + 0x28);
-static volatile uint32_t* gpio_lev = (uint32_t*) (GPIO_BASE + 0x34);
+static volatile uint32_t *gpio_set = (uint32_t *) (GPIO_BASE + 0x1C);
+static volatile uint32_t *gpio_clr = (uint32_t *) (GPIO_BASE + 0x28);
+static volatile uint32_t *gpio_lev = (uint32_t *) (GPIO_BASE + 0x34);
 
 void gpio_set_func(unsigned pin, gpio_func_t fn);
 void gpio_set_output(unsigned pin);

@@ -142,7 +142,7 @@ regs Kusti, 23.10.2004
 extern "C" {
 #endif
 
-typedef void (*putcf)(void*, char);
+typedef void (*putcf)(void *, char);
 
 /*
    'tfp_format' really is the central function for all tinyprintf. For
@@ -154,14 +154,14 @@ typedef void (*putcf)(void*, char);
    The 'tfp_printf' and 'tfp_sprintf' functions simply define their own
    callback and pass to it the right 'putp' it is expecting.
 */
-void tfp_format(void* putp, putcf putf, const char* fmt, va_list va);
+void tfp_format(void *putp, putcf putf, const char *fmt, va_list va);
 
 #if TINYPRINTF_DEFINE_TFP_SPRINTF
-int tfp_vsnprintf(char* str, size_t size, const char* fmt, va_list ap);
-int tfp_snprintf(char* str, size_t size, const char* fmt, ...)
+int tfp_vsnprintf(char *str, size_t size, const char *fmt, va_list ap);
+int tfp_snprintf(char *str, size_t size, const char *fmt, ...)
     _TFP_SPECIFY_PRINTF_FMT(3, 4);
-int tfp_vsprintf(char* str, const char* fmt, va_list ap);
-int tfp_sprintf(char* str, const char* fmt, ...) _TFP_SPECIFY_PRINTF_FMT(2, 3);
+int tfp_vsprintf(char *str, const char *fmt, va_list ap);
+int tfp_sprintf(char *str, const char *fmt, ...) _TFP_SPECIFY_PRINTF_FMT(2, 3);
 #if TINYPRINTF_OVERRIDE_LIBC
 #define vsnprintf tfp_vsnprintf
 #define snprintf  tfp_snprintf
@@ -171,8 +171,8 @@ int tfp_sprintf(char* str, const char* fmt, ...) _TFP_SPECIFY_PRINTF_FMT(2, 3);
 #endif
 
 #if TINYPRINTF_DEFINE_TFP_PRINTF
-void init_printf(void* putp, putcf putf);
-void tfp_printf(char* fmt, ...) _TFP_SPECIFY_PRINTF_FMT(1, 2);
+void init_printf(void *putp, putcf putf);
+void tfp_printf(char *fmt, ...) _TFP_SPECIFY_PRINTF_FMT(1, 2);
 #if TINYPRINTF_OVERRIDE_LIBC
 #define printf tfp_printf
 #endif

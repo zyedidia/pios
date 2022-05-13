@@ -6,14 +6,14 @@
 #include "interrupts.h"
 #include "timer.h"
 
-static volatile uint32_t* gpio_fsel = (uint32_t*) (GPIO_BASE);
-static volatile uint32_t* gpio_eds = (uint32_t*) (GPIO_BASE + 0x40);
-static volatile uint32_t* gpio_ren = (uint32_t*) (GPIO_BASE + 0x4c);
-static volatile uint32_t* gpio_fen = (uint32_t*) (GPIO_BASE + 0x58);
-static volatile uint32_t* gpio_aren = (uint32_t*) (GPIO_BASE + 0x7c);
-static volatile uint32_t* gpio_afen = (uint32_t*) (GPIO_BASE + 0x88);
-static volatile uint32_t* gpio_pud = (uint32_t*) (GPIO_BASE + 0x94);
-static volatile uint32_t* gpio_pudclk = (uint32_t*) (GPIO_BASE + 0x98);
+static volatile uint32_t *gpio_fsel = (uint32_t *) (GPIO_BASE);
+static volatile uint32_t *gpio_eds = (uint32_t *) (GPIO_BASE + 0x40);
+static volatile uint32_t *gpio_ren = (uint32_t *) (GPIO_BASE + 0x4c);
+static volatile uint32_t *gpio_fen = (uint32_t *) (GPIO_BASE + 0x58);
+static volatile uint32_t *gpio_aren = (uint32_t *) (GPIO_BASE + 0x7c);
+static volatile uint32_t *gpio_afen = (uint32_t *) (GPIO_BASE + 0x88);
+static volatile uint32_t *gpio_pud = (uint32_t *) (GPIO_BASE + 0x94);
+static volatile uint32_t *gpio_pudclk = (uint32_t *) (GPIO_BASE + 0x98);
 
 void gpio_set_func(unsigned pin, gpio_func_t fn) {
     if (pin >= 32)

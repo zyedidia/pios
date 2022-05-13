@@ -34,7 +34,7 @@ install: kern.bin
 	pi-install $<
 
 clean:
-	rm -f *.d *.list *.o *.elf *.bin
+	rm -rf *.d *.list *.o *.elf *.bin .deps
 
 -include $(DEP)
 

@@ -19,7 +19,7 @@ typedef struct {
     uint32_t disable_basic_irqs;
 } irq_ctrl_t;
 
-static volatile irq_ctrl_t* const irq_ctrl = (irq_ctrl_t*) pa2ka(0x2000B200);
+static volatile irq_ctrl_t *const irq_ctrl = (irq_ctrl_t *) pa2ka(0x2000B200);
 
 void irq_enable_basic(uint32_t irq) {
     irq_ctrl->enable_basic_irqs = bit_set(irq_ctrl->enable_basic_irqs, irq);
@@ -65,8 +65,8 @@ void irq_init_table(uintptr_t addr) {
     extern char _interrupt_table;
     extern char _interrupt_table_end;
 
-    char* dst = (char*) addr;
-    char* src = (char*) &_interrupt_table;
+    char *dst = (char *) addr;
+    char *src = (char *) &_interrupt_table;
     size_t n = &_interrupt_table_end - src;
     memcpy(dst, src, n);
 
@@ -75,7 +75,7 @@ void irq_init_table(uintptr_t addr) {
 
 extern uintptr_t _vector_table;
 
-static volatile uintptr_t* const vec_tbl = (uintptr_t*) &_vector_table;
+static volatile uintptr_t *const vec_tbl = (uintptr_t *) &_vector_table;
 
 void register_irq_vec(irq_vec_t vec, uintptr_t fn) {
     vec_tbl[vec] = fn;

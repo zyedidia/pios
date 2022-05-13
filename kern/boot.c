@@ -20,10 +20,10 @@ extern void __attribute__((section(".text.boot"))) _hlt();
 
 // map va to pa in the kernel pagetable
 static void vm_kernel_map(uintptr_t va, uintptr_t pa) {
-    pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) kernel_pagetable);
+    pte_1mb_t *pgtbl = (pte_1mb_t *) ka2pa((uintptr_t) kernel_pagetable);
 
     unsigned pte_idx = va >> 20;
-    pte_1mb_t* pte = &pgtbl[pte_idx];
+    pte_1mb_t *pte = &pgtbl[pte_idx];
 
     if (pte->tag != 0b00) {
         _hlt();
@@ -68,8 +68,8 @@ static void vm_kernel_enable() {
 
 void cstart() {
     extern int _kbss_start, _kbss_end;
-    int* bss = (int*) ka2pa((uintptr_t) &_kbss_start);
-    int* bss_end = (int*) ka2pa((uintptr_t) &_kbss_end);
+    int *bss = (int *) ka2pa((uintptr_t) &_kbss_start);
+    int *bss_end = (int *) ka2pa((uintptr_t) &_kbss_end);
     while (bss < bss_end) {
         *bss++ = 0;
     }

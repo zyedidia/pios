@@ -1,14 +1,14 @@
-#include "kern.h"
 #include "proc.h"
-#include "vm.h"
+#include "kern.h"
 #include "kmalloc.h"
+#include "vm.h"
 
 static pid_t id;
 
 proc_t procs[NPROC];
-proc_t* curproc;
+proc_t *curproc;
 
-proc_t *proc_new(uint8_t* code, size_t codesz) {
+proc_t *proc_new(uint8_t *code, size_t codesz) {
     proc_t *proc = &procs[id];
     proc->id = id++;
     proc->pt = kalloc_pt();
@@ -25,18 +25,19 @@ proc_t *proc_new(uint8_t* code, size_t codesz) {
     vm_map(proc->pt, pa2ka(0x20100000), 0x20100000, PAGE_1MB, RW_USER);
     vm_map(proc->pt, pa2ka(0x20200000), 0x20200000, PAGE_1MB, RW_USER);
     // map proc code into pt
-    void* pgs = kmalloc(proc->codesz);
+    void *pgs = kmalloc(proc->codesz);
     memcpy(pgs, proc->code, proc->codesz);
     for (size_t n = 0; n < proc->codesz; n += SIZE_4KB) {
-        vm_map(proc->pt, PROC_ENTRY + n, ka2pa((uintptr_t) pgs + n), PAGE_4KB, RW_USER);
+        vm_map(proc->pt, PROC_ENTRY + n, ka2pa((uintptr_t) pgs + n), PAGE_4KB,
+               RW_USER);
     }
     proc->regs.pc = PROC_ENTRY;
     return proc;
 }
 
-#include "sys.h"
 #include "asm.h"
-void __attribute__((noreturn)) proc_run(proc_t* proc) {
+#include "sys.h"
+void __attribute__((noreturn)) proc_run(proc_t *proc) {
     proc->state = PROC_RUNNING;
     vm_set_pt(proc->pt);
     curproc = proc;
@@ -45,6 +46,7 @@ void __attribute__((noreturn)) proc_run(proc_t* proc) {
     // TODO(masot): add an assert like that
     sys_set_domain(DOM_CLIENT);
     set_spsr((get_cpsr() & ~0b11111) | 0b10000);
-    asm volatile ("ldm %0, {r0-r15}^" : : "r"(proc));
-    while (1) {}
+    asm volatile("ldm %0, {r0-r15}^" : : "r"(proc));
+    while (1) {
+    }
 }

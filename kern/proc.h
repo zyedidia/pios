@@ -6,7 +6,7 @@
 #include "vm.h"
 
 #define PROC_ENTRY 0x8000
-#define NPROC 16
+#define NPROC      16
 
 typedef struct {
     uint32_t r0;
@@ -36,15 +36,15 @@ typedef enum {
 typedef struct {
     regs_t regs;
     uint32_t id;
-    pagetable_t* pt;
+    pagetable_t *pt;
 
-    uint8_t* code;
+    uint8_t *code;
     size_t codesz;
 
     proc_state_t state;
 } proc_t;
 
-extern proc_t* curproc;
+extern proc_t *curproc;
 
-proc_t *proc_new(uint8_t* code, size_t codesz);
-void proc_run(proc_t* proc);
+proc_t *proc_new(uint8_t *code, size_t codesz);
+void proc_run(proc_t *proc);

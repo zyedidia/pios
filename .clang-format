@@ -4,4 +4,6 @@ IndentWidth: 4
 SpaceAfterCStyleCast: true
 AlignConsecutiveMacros: true
 AlignConsecutiveBitFields: true
+IndentCaseLabels: false
+PointerAlignment: Right
 ---

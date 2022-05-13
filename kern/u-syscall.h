@@ -42,7 +42,7 @@ static inline void exit() {
 // to allocate any physical page. Returns the address of the allocated page; or
 // returns a null pointer if the requested page does not exist or is already
 // allocated, or if there are no available pages.
-static inline void* alloc_page(int i) {
+static inline void *alloc_page(int i) {
     // Mark which process allocated the page.
     return syscall_1(SYSCALL_ALLOC_PAGE, i);
 }
@@ -50,7 +50,7 @@ static inline void* alloc_page(int i) {
 // Release the allocated physical page. The caller needs to have been previously
 // allocated the physical page and not already deallocated it. Returns 0 if
 // successful, otherwise -1.
-static inline int dealloc_page(void* addr) {
+static inline int dealloc_page(void *addr) {
     return syscall_1(SYSCALL_DEALLOC_PAGE, addr);
 }
 
