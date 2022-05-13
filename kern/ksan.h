@@ -3,5 +3,4 @@
 #include <string.h>
 
 void asan_enable();
-void* asan_kmalloc(size_t sz);
-void asan_kfree(void* p);
+void asan_mark_memory(uintptr_t pa, size_t sz, bool alloc);

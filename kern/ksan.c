@@ -3,7 +3,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "vm.h"
 #include "kern.h"
+#include "kmalloc.h"
 
 typedef struct {
     const char* file;
@@ -136,6 +138,91 @@ void __ubsan_handle_pointer_overflow(src_loc_t* loc,
                                      uintptr_t base,
                                      uintptr_t result) {
     panic("%s:%lu: pointer overflow\n", loc->file, loc->line);
+}
+
+// each entry is 1 if alloced, 0 otherwise
+static bool asan_pagemap[MEMSIZE_PHYSICAL / PAGESIZE];
+
+static bool asan = false;
+
+static bool in_range(uintptr_t ka, char* start, char* end) {
+    return ka >= (uintptr_t) start && ka < (uintptr_t) end;
+}
+
+static void asan_access(uintptr_t ka, size_t sz, bool write) {
+    if (!asan || ka >= MEMSIZE_PHYSICAL) {
+        return;
+    }
+
+    extern char _ktext_start, _ktext_end;
+    if (write && in_range(ka, &_ktext_start, &_ktext_end)) {
+        panic("write to %x: in kernel text!\n", ka);
+    }
+    extern char _krodata_start, _krodata_end;
+    if (write && in_range(ka, &_krodata_start, &_krodata_end)) {
+        panic("write to %x: in kernel rodata!\n", ka);
+    }
+
+    uintptr_t pn = pagenum(ka2pa(ka));
+    if (!asan_pagemap[pn]) {
+        panic("invalid access at %x\n", ka);
+    }
+}
+
+void asan_mark_memory(uintptr_t pa, size_t sz, bool alloced) {
+    uintptr_t pn = pagenum(pa);
+    asan_pagemap[pn] = alloced;
+}
+
+static void asan_init() {
+    extern char _kheap_start;
+    uintptr_t heap_start = (uintptr_t) &_kheap_start;
+    for (uintptr_t pa = 0; pa < MEMSIZE_PHYSICAL; pa += PAGESIZE) {
+        uintptr_t pn = pagenum(pa);
+        // all pages below heap are alloced
+        asan_pagemap[pn] = pa < heap_start;
+    }
+}
+
+void __asan_load1_noabort(unsigned long addr) {
+    asan_access(addr, 1, false);
+}
+void __asan_load2_noabort(unsigned long addr) {
+    asan_access(addr, 2, false);
+}
+void __asan_load4_noabort(unsigned long addr) {
+    asan_access(addr, 4, false);
+}
+void __asan_load8_noabort(unsigned long addr) {
+    asan_access(addr, 8, false);
+}
+void __asan_loadN_noabort(unsigned long addr, size_t sz) {
+    asan_access(addr, sz, false);
+}
+
+void __asan_store1_noabort(unsigned long addr) {
+    asan_access(addr, 1, true);
+}
+void __asan_store2_noabort(unsigned long addr) {
+    asan_access(addr, 2, true);
+}
+void __asan_store4_noabort(unsigned long addr) {
+    asan_access(addr, 4, true);
+}
+void __asan_store8_noabort(unsigned long addr) {
+    asan_access(addr, 8, true);
+}
+void __asan_storeN_noabort(unsigned long addr, size_t sz) {
+    asan_access(addr, sz, true);
+}
+
+void __asan_handle_no_return() {}
+void __asan_before_dynamic_init(const char* module_name) {}
+void __asan_after_dynamic_init() {}
+
+void asan_enable() {
+    asan_init();
+    asan = true;
 }
 
 #endif

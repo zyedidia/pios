@@ -31,7 +31,7 @@ endif
 
 $(KERN_OBJ_NOSAN): ASAN_FLAGS := -DSANITIZE=$(SANITIZE)
 
-%.o: %.c
+%.o: %.c $(BUILDSTAMP)
 	$(CC) $(CFLAGS) $(ASAN_FLAGS) $< -c -o $@
 
 %.o: %.s

@@ -1,15 +1,31 @@
-include kern.mk
-include ../defs.mk
+all: kern.bin
 
 O ?= s
 
-CFLAGS += -MMD
+# these rules ensure dependencies are created
+DEPCFLAGS = -MD -MF $(DEPSDIR)/$(notdir $*).d -MP
+DEPSDIR := .deps
+BUILDSTAMP := $(DEPSDIR)/rebuildstamp
+DEPFILES := $(wildcard $(DEPSDIR)/*.d)
+ifneq ($(DEPFILES),)
+include $(DEPFILES)
+endif
+
+include kern.mk
+include ../defs.mk
+
+CFLAGS += $(DEPCFLAGS)
 
 INCLUDE = -I$(KERN) -I$(PIOS)
 CFLAGS += $(INCLUDE)
 ASFLAGS += $(INCLUDE)
 CPPFLAGS += $(INCLUDE)
 DEP = $(KERN_OBJ:.o=.d)
+
+# when the C compiler or optimization flags change, rebuild all objects
+ifneq ($(strip $(DEP_CC)),$(strip $(CC) $(CFLAGS) $(ASAN_FLAGS) $(O)))
+DEP_CC := $(shell mkdir -p $(DEPSDIR); echo >$(BUILDSTAMP); echo "DEP_CC:=$(CC) $(CFLAGS) $(ASAN_FLAGS) $(O)" >$(DEPSDIR)/_cc.d)
+endif
 
 kern.elf: $(MEMMAP) $(KERN_OBJ)
 	$(LD) $(LDFLAGS) $(filter-out $<,$^) $(LDLIBS) -o $@

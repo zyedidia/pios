@@ -5,6 +5,7 @@
 #include "kmalloc.h"
 #include "lib.h"
 #include "vm.h"
+#include "ksan.h"
 
 // allocates pages of size 4096
 #define MIN_ORDER 12
@@ -41,14 +42,6 @@ static void ll_free_remove(free_page_t* n, int order) {
 }
 
 static phys_page_t pages[MEMSIZE_PHYSICAL / PAGESIZE];
-
-static uintptr_t pagenum(uintptr_t pa) {
-    return pa / PAGESIZE;
-}
-
-static uintptr_t pageaddr(uintptr_t pn) {
-    return pn * PAGESIZE;
-}
 
 // Checks if a page number is valid for a given order
 static bool valid(uintptr_t pn, unsigned order) {
@@ -144,7 +137,12 @@ void* kmalloc(size_t sz) {
                     // The page matches the order so we can return it directly
                     ll_free_remove(free_lists[i], i);
                     pages[pn].free = false;
-                    // TODO (asan): mark page as allocated
+
+#if (SANITIZE == 1)
+                    // mark page allocated
+                    asan_mark_memory(pa, sz, true);
+#endif
+
                     return (void*) pa2ka(pa);
                 } else if (i > order) {
                     // We found a block that is greater than the requested
@@ -189,7 +187,11 @@ void kfree(void* ptr) {
     pages[pn].free = true;
     uintptr_t bpn = get_buddy(pn);
     unsigned order = pages[pn].order;
-    // TODO (asan): mark page as free
+
+#if (SANITIZE == 1)
+    // mark page free
+    asan_mark_memory(pa, (1 << pages[pn].order), false);
+#endif
 
     while (bpn != (uintptr_t) -1 && pages[bpn].free &&
            pages[bpn].order == pages[pn].order) {
