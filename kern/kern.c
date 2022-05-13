@@ -50,7 +50,7 @@ void kernel_start() {
     extern unsigned char _binary_pidos_bin_end;
 
     proc_t *p_pidos_1 = proc_new(&_binary_pidos_bin_start, (size_t) (&_binary_pidos_bin_end - &_binary_pidos_bin_start));
-    proc_t *p_pidos_2 = proc_new(&_binary_pidos_bin_start, (size_t) (&_binary_pidos_bin_end - &_binary_pidos_bin_start));
+    proc_new(&_binary_pidos_bin_start, (size_t) (&_binary_pidos_bin_end - &_binary_pidos_bin_start));
 
     proc_run(p_pidos_1);
 
