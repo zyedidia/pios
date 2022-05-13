@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "char prog[] = {"
-hexdump -e '"\t" 8/1 "0x%02x, " "\n"' $@
+echo "#include <string.h>"
+echo "unsigned char prog_$2[] = {"
+hexdump -e '"\t" 8/1 "0x%02x, " "\n"' $1
 echo "};"
-echo -n "unsigned n_prog = "
-echo "$(cat $@ | wc -c);"
+echo "size_t prog_$2_sz = sizeof(prog_$2);"

@@ -1,0 +1,5 @@
+#include <string.h>
+unsigned char prog_basic[] = {
+	0x00, 0x00, 0xa0, 0xe3, 0x00, 0x00, 0x00, 0xef,
+};
+size_t prog_basic_sz = sizeof(prog_basic);

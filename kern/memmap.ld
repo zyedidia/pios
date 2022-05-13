@@ -1,8 +1,21 @@
+ENTRY(_boot_start)
+
 SECTIONS
 {
-    .text 0x80008000 :  {
+    .text.boot 0x8000 : {
+        _boot_start = .;
+        KEEP(*(.text.start.boot))
+        KEEP(*(.text.boot))
+        _boot_end = .;
+        . = ALIGN(8);
+    }
+
+    /* rest of kernel is at high addresses */
+    . = . | (1 << 31);
+
+    /* load at low LMA with high VMA */
+    .text : AT (ADDR(.text) & ~(1 << 31)) {
         _ktext_start = .;
-        KEEP(*(.boot))  
         *(.text*) 
         _ktext_end = .;
         . = ALIGN(8);
@@ -18,6 +31,7 @@ SECTIONS
         . = ALIGN(4);
         _kdata_end = .;
     } 
+
     .bss : {
         . = ALIGN(4);
         _kbss_start = .;
@@ -26,6 +40,16 @@ SECTIONS
         . = ALIGN(8);
         _kbss_end = .;
         . = ALIGN(8);
-        _kheap_start = .;
     }
+
+    .kstack : {
+        . += 8K;
+    }
+
+    PROVIDE(kstack = .);
+    PROVIDE(kstack_phys = (. & ~(1 << 31)));
+
+    _kheap_start = .;
+
+    /DISCARD/ : { *(.eh_frame .note.GNU-stack) }
 }

@@ -6,6 +6,7 @@
 *.so
 *.vcd
 .*.sw*
+kern/p-*.c
 /boot/firmware
 trace.txt
 tools/piprog/piprog

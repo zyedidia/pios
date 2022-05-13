@@ -5,15 +5,22 @@
 #include "sys.h"
 #include "vm.h"
 
-extern void _hlt();
+static pte_1mb_t __attribute__((aligned(1 << 14))) kernel_pagetable[4096];
 
-// TODO: masot marked non-static so we can hack some vm syscalls into kern.c.
-// Eventually should have a separate 'late' page table that differs from this
-// early_pagetable.
-pte_1mb_t __attribute__((aligned(1 << 14))) early_pagetable[4096];
+// all functions in this file go in .text.boot so they exist at low addresses
+// (these functions run before the MMU is enabled).
+static void __attribute__((section(".text.boot")))
+vm_kernel_map(uintptr_t va, uintptr_t pa);
+static void __attribute__((section(".text.boot"))) vm_kernel_enable();
+static void __attribute__((section(".text.boot")))
+dmap_kernel_section(uintptr_t pa);
+static void __attribute__((section(".text.boot"))) dmap_kernel_sections();
+void __attribute__((section(".text.boot"))) cstart();
+extern void __attribute__((section(".text.boot"))) _hlt();
 
-static void vm_map_early(uintptr_t va, uintptr_t pa) {
-    pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) early_pagetable);
+// map va to pa in the kernel pagetable
+static void vm_kernel_map(uintptr_t va, uintptr_t pa) {
+    pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) kernel_pagetable);
 
     unsigned pte_idx = va >> 20;
     pte_1mb_t* pte = &pgtbl[pte_idx];
@@ -26,68 +33,33 @@ static void vm_map_early(uintptr_t va, uintptr_t pa) {
     pte->sec_base_addr = pa >> 20;
 }
 
-static void vm_unmap_sec(uintptr_t va) {
-    pte_1mb_t* pgtbl = (pte_1mb_t*) ka2pa((uintptr_t) early_pagetable);
-
-    unsigned pte_idx = va >> 20;
-    pte_1mb_t* pte = &pgtbl[pte_idx];
-
-    if (pte->tag != 0b10) {
-        _hlt();
-    }
-
-    pte->tag = 0b00;
+// double map pa as pa -> pa and pa2ka(pa) -> pa
+static void dmap_kernel_section(uintptr_t pa) {
+    vm_kernel_map(pa, pa);
+    vm_kernel_map(pa2ka(pa), pa);
 }
 
-static void map_early_page(uintptr_t pa) {
-    vm_map_early(pa, pa);
-    vm_map_early(pa2ka(pa), pa);
-}
-
-static const unsigned sec_size = (1 << 20);  // 1mb
-
-static void map_kernel_pages() {
-    // map one mb of stack
-    map_early_page(STACK_ADDR - sec_size);
-    map_early_page(INT_STACK_ADDR_PHYS - sec_size);
-    // map code
-    // TODO(masot): should probably assert that _ktext_end fits ?
-    map_early_page(0);
-    // map uart, gpio, watchdog timer
-    map_early_page(0x20000000);
-    map_early_page(0x20100000);
-    map_early_page(0x20200000);
-    sys_clean_and_invalidate_cache();
-}
-
-static void unmap_low_pages() {
-    // map one mb of stack
-    vm_unmap_sec(STACK_ADDR - sec_size);
-    // map code
-    // TODO(masot): can this just unmap 0? since map_low_pages is now assuming
-    // small text
-    extern char _ktext_start, _ktext_end;
-    for (uintptr_t ka = (uintptr_t) &_ktext_start; ka < (uintptr_t) &_ktext_end;
-         ka += sec_size) {
-        vm_unmap_sec(ka2pa(ka));
+// double map all kernel regions
+static void dmap_kernel_sections() {
+    // map kernel
+    for (uintptr_t pa = 0; pa < MEMSIZE_PHYSICAL; pa += SIZE_1MB) {
+        dmap_kernel_section(pa);
     }
     // map uart, gpio, watchdog timer
-    vm_unmap_sec(0x20000000);
-    vm_unmap_sec(0x20100000);
-    vm_unmap_sec(0x20200000);
+    dmap_kernel_section(0x20000000);
+    dmap_kernel_section(0x20100000);
+    dmap_kernel_section(0x20200000);
     sys_clean_and_invalidate_cache();
-    sys_flush_btb();
     sys_invalidate_tlb();
-    sys_prefetch_flush();
-    dsb();
 }
 
-static void vm_enable_early() {
+// enable the kernel pagetable
+static void vm_kernel_enable() {
     sys_invalidate_cache();
     sys_invalidate_tlb();
     dsb();
     sys_set_domain(DOM_MANAGER);
-    sys_set_tlb_base(ka2pa((uintptr_t) early_pagetable));
+    sys_set_tlb_base(ka2pa((uintptr_t) kernel_pagetable));
     sys_set_cache_control(SYS_MMU_ENABLE | SYS_DCACHE_ENABLE |
                           SYS_ICACHE_ENABLE | SYS_BRANCH_PREDICTION_ENABLE |
                           SYS_WRITE_BUFFER_ENABLE | SYS_MMU_XP);
@@ -95,22 +67,17 @@ static void vm_enable_early() {
 
 void cstart() {
     extern int _kbss_start, _kbss_end;
-
     int* bss = (int*) ka2pa((uintptr_t) &_kbss_start);
     int* bss_end = (int*) ka2pa((uintptr_t) &_kbss_end);
-
     while (bss < bss_end) {
         *bss++ = 0;
     }
 
-    map_kernel_pages();
-    vm_enable_early();
+    dmap_kernel_sections();
+    vm_kernel_enable();
 
-    extern void jump_to_ka();
-    jump_to_ka();
-    unmap_low_pages();
-
-    kernel_start();
-    // shouldn't return
+    extern void stack_to_ka();
+    stack_to_ka();
+    kernel_start();  // shouldn't return
     _hlt();
 }

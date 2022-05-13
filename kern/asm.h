@@ -1,10 +1,5 @@
 #pragma once
 
-#define STACK_ADDR 0x8000000
-// kernel address
-#define INT_STACK_ADDR_PHYS 0x9000000
-#define INT_STACK_ADDR      (INT_STACK_ADDR_PHYS | (1 << 31))
-
 // from A2-2
 #define USER_MODE  0b10000
 #define FIQ_MODE   0b10001

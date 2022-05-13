@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#define pa2ka(pa) ((pa | (1UL << 31)))
-#define ka2pa(ka) ((ka & ~(1UL << 31)))
+#define pa2ka(pa) (((pa) | (1UL << 31)))
+#define ka2pa(ka) (((ka) & ~(1UL << 31)))
 
 typedef struct {
     unsigned tag           : 2;
@@ -63,6 +63,22 @@ typedef struct {
 } pte_large_t;
 _Static_assert(sizeof(pte_large_t) == 4, "invalid size for pte_large_t");
 
+typedef union {
+    pde_t pde;
+    pte_1mb_t pte_1mb;
+} l1pte_t;
+_Static_assert(sizeof(l1pte_t) == 4, "invalid size for l1pte_t");
+
+typedef union {
+    pte_small_t pte_4k;
+    pte_large_t pte_16k;
+} l2pte_t;
+_Static_assert(sizeof(l2pte_t) == 4, "invalid size for l2pte_t");
+
+typedef struct {
+    l1pte_t entries[4096];
+} pagetable_t;
+
 enum {
     AP_RW = 0b11,
     AP_NO_ACCESS = 0b00,
@@ -76,9 +92,20 @@ enum {
     DOM_MANAGER = 0b11,    // TLB access bits are ignored
 };
 
-void vm_init();
-void vm_map(uintptr_t va, uintptr_t pa, unsigned flags);
-void vm_unmap(uintptr_t va);
-void vm_enable();
-void vm_map_section_into_early_pt(uintptr_t va, uintptr_t pa);
-void vm_flushem();
+#define SIZE_4KB  (1 << 12)
+#define SIZE_16KB (1 << 14)
+#define SIZE_1MB  (1 << 20)
+#define SIZE_16MB (1 << 24)
+
+typedef enum {
+    PAGE_UNMAPPED,
+    PAGE_4KB,
+    PAGE_16KB,
+    PAGE_1MB,
+    PAGE_16MB,
+} pg_typ_t;
+
+pagetable_t* kalloc_pt();
+void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ);
+void vm_unmap(pagetable_t* pt, uintptr_t va);
+void vm_set_pt(pagetable_t* pt);
