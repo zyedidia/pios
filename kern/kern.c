@@ -44,18 +44,24 @@ void kernel_start() {
 
     irq_init();
     irq_enable(BASIC_TIMER_IRQ);
+    dsb();
     timer_irq_load(0x1000);
 
     printf("kernel booted\n");
 
-    extern unsigned char _binary_pidos_bin_start;
-    extern unsigned char _binary_pidos_bin_end;
-
-    proc_t *p_pidos_1 = proc_new(&_binary_pidos_bin_start, (size_t) (&_binary_pidos_bin_end - &_binary_pidos_bin_start));
-    proc_new(&_binary_pidos_bin_start, (size_t) (&_binary_pidos_bin_end - &_binary_pidos_bin_start));
-
-    // TODO/NOTE(masot): Currently, proc_run enables IRQs
+#ifdef PIDOS
+    extern uint8_t _binary_pidos_bin_start;
+    extern uint8_t _binary_pidos_bin_end;
+    proc_t *p_pidos_1 = proc_new(&_binary_pidos_bin_start, &_binary_pidos_bin_end);
+    proc_new(&_binary_pidos_bin_start, &_binary_pidos_bin_end);
+    enable_interrupts(); // TODO: Set this in the SPSR
     proc_run(p_pidos_1);
+#else
+    extern uint8_t _binary_basic_bin_start;
+    extern uint8_t _binary_basic_bin_end;
+    proc_t* p_basic = proc_new(&_binary_basic_bin_start, &_binary_basic_bin_end);
+    proc_run(p_basic);
+#endif
 
     reboot();
     return;

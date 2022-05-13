@@ -8,12 +8,14 @@ static pid_t id;
 proc_t procs[NPROC];
 proc_t *curproc;
 
-proc_t *proc_new(uint8_t *code, size_t codesz) {
+proc_t *proc_new(uint8_t *code_start, uint8_t *code_end) {
+    size_t codesz = code_end - code_start;
+
     proc_t *proc = &procs[id];
     proc->id = id++;
     proc->pt = kalloc_pt();
     proc->state = PROC_RUNNABLE;
-    proc->code = code;
+    proc->code = code_start;
     proc->codesz = codesz;
     // map kernel into pt
     for (uintptr_t pa = 0; pa < MEMSIZE_PHYSICAL; pa += SIZE_1MB) {
@@ -42,7 +44,6 @@ void __attribute__((noreturn)) proc_run(proc_t *proc) {
     vm_set_pt(proc->pt);
     curproc = proc;
 
-    enable_interrupts(); // TODO: Set this in the SPSR
     // NOTE: To use SPSR, need to be sure we are *NOT* in user/system mode.
     // TODO(masot): add an assert like that
     set_spsr((get_cpsr() & ~0b11111) | 0b10000);
@@ -50,8 +51,6 @@ void __attribute__((noreturn)) proc_run(proc_t *proc) {
     while (1) {
     }
 }
-
-thread_id = 0;
 
 void swippityswap(regs_t *live_state, proc_t *new_thread, proc_t *old_thread) {
     memcpy(&(old_thread->regs), live_state, sizeof(regs_t));

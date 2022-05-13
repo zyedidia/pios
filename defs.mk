@@ -8,6 +8,8 @@ OBJCOPY = $(PREFIX)-objcopy
 OBJDUMP = $(PREFIX)-objdump
 
 QEMU = qemu-system-arm
+# Custom qemu with dev barrier checking
+# QEMU = /home/zyedidia/programming/qemu-dev/build/qemu-system-arm
 BOARD = raspi1ap
 GDB = gdb-multiarch
 
@@ -20,7 +22,7 @@ ARCH = armv6zk
 
 PIOS ?= $(shell git rev-parse --show-toplevel)
 
-CFLAGS = -O$(O) -g -Wall -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU) -Wa,-march=$(ARCH)
+CFLAGS = -O$(O) -g -Wall -Werror -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU) -Wa,-march=$(ARCH)
 ASFLAGS = -mcpu=$(CPU) -march=$(ARCH)
 LDFLAGS = -T $(MEMMAP)
 LDLIBS = $(LIBGCC)

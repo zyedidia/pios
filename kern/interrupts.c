@@ -19,7 +19,7 @@ typedef struct {
     uint32_t disable_basic_irqs;
 } irq_ctrl_t;
 
-static volatile irq_ctrl_t *const irq_ctrl = (irq_ctrl_t *) pa2ka(0x2000B200);
+static volatile irq_ctrl_t *const irq_ctrl = (irq_ctrl_t *) pa2ka(0x2000b200);
 
 void irq_enable_basic(uint32_t irq) {
     irq_ctrl->enable_basic_irqs = bit_set(irq_ctrl->enable_basic_irqs, irq);
