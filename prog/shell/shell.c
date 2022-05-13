@@ -11,8 +11,7 @@ char *read_line() {
     while (1) {
         c = uart_rx();
         if (c == '\n' || c == '\r') {
-            uart_tx('\r');
-            uart_tx('\n');
+            printf("\r\n");
             buffer[i++] = '\0';
             return buffer;
         } else {
@@ -22,7 +21,7 @@ char *read_line() {
     }
 }
 
-char **split_line(char *line) {
+char **split_line(char *line, int *n) {
     int i = 0;
     char *token;
     char **tokens = kmalloc(sizeof(char*) * BUFSIZE);
@@ -33,28 +32,39 @@ char **split_line(char *line) {
         token = strtok(NULL, TOKEN_DELIM);
     }
     tokens[i] = NULL;
+    *n = i;
     return tokens;
 }
 
-int execute(char **args) {
+int execute(char *line, char **args, int n) {
+    int i;
     char *cmd = args[0];
     if (strcmp(cmd, "exit") == 0) {
         return 0;
+    } else if (strcmp(cmd, "echo") == 0) {
+        for (i = 1; i < n; i++) {
+            printf("%s", args[i]);
+            if (i == n - 1)
+                printf("\r\n");
+            else
+                printf(" ");
+        }
     } else {
-        return 1;
+        printf("Unknown command: %s\r\n", line);
     }
+    return 1;
 }
 
 void loop() {
     char *line;
     char **args;
-    int status;
+    int status, n;
 
     do {
         printf("\r$ ");
         line = read_line();
-        args = split_line(line);
-        status = execute(args);
+        args = split_line(line, &n);
+        status = execute(line, args, n);
 
         kfree(line);
         kfree(args);
