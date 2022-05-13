@@ -81,8 +81,12 @@ void kmalloc_init() {
     // Iterate through all heap memory, mark as free, and coalesce blocks
     // together if possible
     uintptr_t heap_start = ka2pa((uintptr_t) &_kheap_start);
-    for (uintptr_t pa = heap_start; pa < MEMSIZE_PHYSICAL; pa += PAGESIZE) {
+    for (uintptr_t pa = 0; pa < MEMSIZE_PHYSICAL; pa += PAGESIZE) {
         uintptr_t pn = pagenum(pa);
+        if (pa < heap_start) {
+            pages[pn].order = MIN_ORDER;
+            continue;
+        }
         pages[pn].free = true;
         pages[pn].order = MIN_ORDER;
 
@@ -105,7 +109,7 @@ void kmalloc_init() {
 
     // Now we set up the free lists by looping over each block and adding it to
     // the list
-    uintptr_t pn = pagenum(heap_start);
+    uintptr_t pn = 0;
     while (pn < pagenum(MEMSIZE_PHYSICAL)) {
         phys_page_t page = pages[pn];
         assert(valid(pn, page.order));
