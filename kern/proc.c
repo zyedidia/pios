@@ -17,27 +17,34 @@ proc_t *proc_new(uint8_t* code, size_t codesz) {
     proc->codesz = codesz;
     // map kernel into pt
     for (uintptr_t pa = 0; pa < MEMSIZE_PHYSICAL; pa += SIZE_1MB) {
-        vm_map(proc->pt, pa2ka(pa), pa, PAGE_1MB);
+        vm_map(proc->pt, pa2ka(pa), pa, PAGE_1MB, RW_KER_ONLY);
     }
     // map kernel devices
-    vm_map(proc->pt, pa2ka(0x20000000), 0x20000000, PAGE_1MB);
-    vm_map(proc->pt, pa2ka(0x20100000), 0x20100000, PAGE_1MB);
-    vm_map(proc->pt, pa2ka(0x20200000), 0x20200000, PAGE_1MB);
+    // TODO(masot) protect things
+    vm_map(proc->pt, pa2ka(0x20000000), 0x20000000, PAGE_1MB, RW_USER);
+    vm_map(proc->pt, pa2ka(0x20100000), 0x20100000, PAGE_1MB, RW_USER);
+    vm_map(proc->pt, pa2ka(0x20200000), 0x20200000, PAGE_1MB, RW_USER);
     // map proc code into pt
     void* pgs = kmalloc(proc->codesz);
     memcpy(pgs, proc->code, proc->codesz);
     for (size_t n = 0; n < proc->codesz; n += SIZE_4KB) {
-        vm_map(proc->pt, PROC_ENTRY + n, ka2pa((uintptr_t) pgs + n), PAGE_4KB);
+        vm_map(proc->pt, PROC_ENTRY + n, ka2pa((uintptr_t) pgs + n), PAGE_4KB, RW_USER);
     }
     proc->regs.pc = PROC_ENTRY;
     return proc;
 }
 
+#include "sys.h"
+#include "asm.h"
 void __attribute__((noreturn)) proc_run(proc_t* proc) {
     proc->state = PROC_RUNNING;
     vm_set_pt(proc->pt);
     curproc = proc;
 
-    asm volatile ("ldm %0, {r0-r15}" : : "r"(proc));
+    // NOTE: To use SPSR, need to be sure we are *NOT* in user/system mode.
+    // TODO(masot): add an assert like that
+    sys_set_domain(DOM_CLIENT);
+    set_spsr((get_cpsr() & ~0b11111) | 0b10000);
+    asm volatile ("ldm %0, {r0-r15}^" : : "r"(proc));
     while (1) {}
 }

@@ -194,6 +194,12 @@ static inline void sys_set_domain(unsigned reg) {
     asm volatile("mcr p15, 0, %0, c3, c0, 0" : : "r"(reg));
 }
 
+static inline unsigned sys_get_domain() {
+    unsigned reg;
+    asm volatile("mrc p15, 0, %0, c3, c0, 0" : "=r"(reg));
+    return reg;
+}
+
 static inline void sys_set_tlb_base(unsigned base) {
     asm volatile("mcr p15, 0, %0, c2, c0, 0" : : "r"(base));
     asm volatile("mcr p15, 0, %0, c2, c0, 1" : : "r"(base));
@@ -203,4 +209,34 @@ static inline unsigned get_dfar() {
     unsigned dfar = 0;
     asm volatile("mrc p15, 0, %0, c6, c0, 0" : "=r"(dfar));
     return dfar;
+}
+
+static inline unsigned get_ifar() {
+    unsigned ifar = 0;
+    asm volatile("mrc p15, 0, %0, c6, c0, 2" : "=r"(ifar));
+    return ifar;
+}
+
+static inline unsigned get_cpsr() {
+    unsigned cpsr = 0;
+    asm volatile("mrs %0, cpsr" : "=r"(cpsr));
+    return cpsr;
+}
+
+static inline void set_cpsr(unsigned cpsr) {
+    asm volatile("msr cpsr, %0" : : "r"(cpsr));
+}
+
+static inline unsigned get_spsr() {
+    unsigned spsr = 0;
+    asm volatile("mrs %0, spsr" : "=r"(spsr));
+    return spsr;
+}
+
+static inline void set_spsr(unsigned spsr) {
+    asm volatile("msr spsr, %0" : : "r"(spsr));
+}
+
+static inline void go_to_mode(unsigned mode) {
+    set_cpsr((get_cpsr() & ~0b11111) | mode);
 }

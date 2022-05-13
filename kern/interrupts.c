@@ -90,10 +90,16 @@ void __attribute__((interrupt("SWI"))) vec_software_irq() {
     panic_unhandled("software_irq");
 }
 void __attribute__((interrupt("ABORT"))) vec_prefetch_abort() {
+    printf("~~~~~~~~~~~~~~~~~~~~~~~ PANIC ~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("!!!!!!! IFaulted on 0x%x\n", get_ifar());
     panic_unhandled("prefetch_abort");
 }
 void __attribute__((interrupt("ABORT"))) vec_data_abort() {
-    printf("Faulted on 0x%x\n", get_dfar());
+    unsigned lr;
+    asm volatile("mov %0, lr" : "=r"(lr));
+    printf("~~~~~~~~~~~~~~~~~~~~~~~ PANIC ~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("!!!!!!! DFaulted on 0x%x\n", get_dfar());
+    printf("!!!!!!! LR was: %x\n", lr);
     panic_unhandled("data_abort");
 }
 void __attribute__((interrupt("IRQ"))) vec_irq() {

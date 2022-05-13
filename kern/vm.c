@@ -19,7 +19,7 @@ static void init_second_level(pde_t* pde) {
     pde->tag = 0b01;
 }
 
-void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ) {
+void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ, protection_typ_t protection) {
     unsigned idx = va >> 20;
     l1pte_t* l1pte = &pt->entries[idx];
 
@@ -33,6 +33,16 @@ void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ) {
         case PAGE_1MB:
             l1pte->pte_1mb.tag = 0b10;
             l1pte->pte_1mb.sec_base_addr = pa >> 20;
+            switch (protection) {
+            case RW_USER:
+                l1pte->pte_1mb.ap = AP_RW;
+                break;
+            case RW_KER_ONLY:
+                l1pte->pte_1mb.ap = AP_KER_RW;
+                break;
+            default:
+                panic("Bad protection!\n");
+            }
             break;
         case PAGE_4KB:
             if (l1pte->pde.tag == 0b00) {
@@ -41,7 +51,16 @@ void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ) {
             pte_small_t* l2pt = (pte_small_t*) pa2ka((uintptr_t) l1pte->pde.addr << 10);
             pte_small_t* l2pte = &l2pt[bits_get(va, 12, 19)];
             l2pte->addr = pa >> 12;
-            l2pte->ap = AP_NO_ACCESS;
+            switch (protection) {
+            case RW_USER:
+                l2pte->ap = AP_RW;
+                break;
+            case RW_KER_ONLY:
+                l2pte->ap = AP_KER_RW;
+                break;
+            default:
+                panic("Bad protection!\n");
+            }
             l2pte->sz = 1;
             break;
         default:
@@ -50,7 +69,7 @@ void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ) {
 }
 
 void vm_unmap(pagetable_t* pt, uintptr_t va) {
-    vm_map(pt, va, 0, PAGE_UNMAPPED);
+    vm_map(pt, va, 0, PAGE_UNMAPPED, RW_USER); // TODO(masot)
 }
 
 void vm_set_pt(pagetable_t* pt) {

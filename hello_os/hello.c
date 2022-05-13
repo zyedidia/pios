@@ -11,9 +11,17 @@ unsigned main() {
     init_printf(NULL, uart_putc);
     printf("Hello, world!\n");
 
+    unsigned cpsr = 0;
+    asm volatile("mrs %0, cpsr" : "=r"(cpsr));
+    printf("CPSR appears to be %x\n", cpsr);
+
     unsigned sp = 0;
     asm volatile("mov %0, sp" : "=r"(sp));
     printf("My stack appears to be at %x\n", sp);
+
+    volatile unsigned *ker_val = (void*)0x80000005;
+    printf("Trying to access a kernel byte at 0x%x...\n", ker_val);
+    printf("Value: %x\n", *ker_val);
 
     return 24;
 }

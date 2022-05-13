@@ -31,6 +31,7 @@ static void vm_kernel_map(uintptr_t va, uintptr_t pa) {
 
     pte->tag = 0b10;
     pte->sec_base_addr = pa >> 20;
+    pte->ap = AP_KER_RW;
 }
 
 // double map pa as pa -> pa and pa2ka(pa) -> pa

@@ -83,6 +83,7 @@ enum {
     AP_RW = 0b11,
     AP_NO_ACCESS = 0b00,
     AP_RO = 0b10,
+    AP_KER_RW = 0b01,
 };
 
 enum {
@@ -106,8 +107,13 @@ typedef enum {
     PAGE_16MB = SIZE_16MB,
 } pg_typ_t;
 
+typedef enum {
+    RW_USER,
+    RW_KER_ONLY,
+} protection_typ_t;
+
 pagetable_t* kalloc_pt();
-void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ);
+void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ, protection_typ_t protection);
 void vm_unmap(pagetable_t* pt, uintptr_t va);
 void vm_set_pt(pagetable_t* pt);
 void vm_flushem();

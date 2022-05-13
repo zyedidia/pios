@@ -5,12 +5,20 @@
 #include "vm.h"
 #include "proc.h"
 #include "kmalloc.h"
+#include "sys.h"
+
+#define VERBOSE_SYSCALLS 0
+#if VERBOSE_SYSCALLS
+#define dprintf printf
+#else
+#define dprintf(...)
+#endif
 
 unsigned syscall_alloc_page(uint32_t page_addr, uint32_t page_size) {
     assert(page_addr == SYSCALL_ARG_ANY_PAGE);
-    printf("Got alloc page syscall for any page, 1MB long.\n");
+    dprintf("Got alloc page syscall for any page, 1MB long.\n");
     uintptr_t ptr = (uintptr_t)ka2pa((uintptr_t)kmalloc(page_size));
-    printf("Giving back physical page %x\n", ptr);
+    dprintf("Giving back physical page %x\n", ptr);
     return ptr;
 }
 
@@ -19,10 +27,10 @@ unsigned syscall_vm_map(uint32_t va,
                         uint32_t flags,
                         uint32_t page_size) {
     assert(flags == 0);
-    printf("Got VM_MAP syscall for va=%lx, pa=%lx, flags=%lx, 1MB.\n",
-           va, pa, flags);
+    dprintf("Got VM_MAP syscall for va=%lx, pa=%lx, flags=%lx, 1MB.\n",
+            va, pa, flags);
     // TODO(masot): FLAGS
-    vm_map(curproc->pt, va, pa, page_size);
+    vm_map(curproc->pt, va, pa, page_size, RW_USER);
     vm_flushem();
     return 0;
 }
