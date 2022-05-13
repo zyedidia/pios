@@ -59,7 +59,7 @@ static void vm_kernel_enable() {
     sys_invalidate_cache();
     sys_invalidate_tlb();
     dsb();
-    sys_set_domain(DOM_MANAGER);
+    sys_set_domain(DOM_CLIENT);
     sys_set_tlb_base(ka2pa((uintptr_t) kernel_pagetable));
     sys_set_cache_control(SYS_MMU_ENABLE | SYS_DCACHE_ENABLE |
                           SYS_ICACHE_ENABLE | SYS_BRANCH_PREDICTION_ENABLE |

@@ -44,7 +44,6 @@ void __attribute__((noreturn)) proc_run(proc_t *proc) {
 
     // NOTE: To use SPSR, need to be sure we are *NOT* in user/system mode.
     // TODO(masot): add an assert like that
-    sys_set_domain(DOM_CLIENT);
     set_spsr((get_cpsr() & ~0b11111) | 0b10000);
     asm volatile("ldm %0, {r0-r15}^" : : "r"(proc));
     while (1) {
