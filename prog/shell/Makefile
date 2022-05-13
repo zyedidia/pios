@@ -12,10 +12,17 @@ OBJ = $(CSRC:.c=.o) $(PIOS_OBJ)
 
 CFLAGS += -I$(PIOS)
 
+TIMEOUT = 3
+TTY = /dev/cu.usbserial-0001
+BAUD = 115200
+
 all: $(PROG).bin
 
 install: $(PROG).bin
 	pi-install $<
+
+screen: $(PROG).bin
+	screen $(TTY) $(BAUD)
 
 $(PROG).elf: $(OBJ)
 	$(LD) $(LDFLAGS) $^ $(LDLIBS) -o $@
