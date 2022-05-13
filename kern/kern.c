@@ -15,6 +15,8 @@ void reboot() {
     printf("DONE!!!\n");
     uart_tx_flush();
 
+    dsb();
+
     volatile uint32_t *PM_RSTC = (uint32_t *) pa2ka(0x2010001c);
     volatile uint32_t *PM_WDOG = (uint32_t *) pa2ka(0x20100024);
 

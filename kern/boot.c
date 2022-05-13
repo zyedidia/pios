@@ -20,6 +20,9 @@ extern void __attribute__((section(".text.boot"))) _hlt();
 
 // map va to pa in the kernel pagetable
 static void vm_kernel_map(uintptr_t va, uintptr_t pa) {
+    // since we are running before the mmu is enabled, physical addresses are
+    // the actual addresses so we need to convert kernel_pagetable from a
+    // kernel address before using it
     pte_1mb_t *pgtbl = (pte_1mb_t *) ka2pa((uintptr_t) kernel_pagetable);
 
     unsigned pte_idx = va >> 20;
