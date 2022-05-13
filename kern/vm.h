@@ -92,20 +92,22 @@ enum {
     DOM_MANAGER = 0b11,    // TLB access bits are ignored
 };
 
+// NOTE: DO NOT CHANGE THESE without changing syscall_list.h
 #define SIZE_4KB  (1 << 12)
 #define SIZE_16KB (1 << 14)
 #define SIZE_1MB  (1 << 20)
 #define SIZE_16MB (1 << 24)
 
 typedef enum {
-    PAGE_UNMAPPED,
-    PAGE_4KB,
-    PAGE_16KB,
-    PAGE_1MB,
-    PAGE_16MB,
+    PAGE_UNMAPPED = 0,
+    PAGE_4KB = SIZE_4KB,
+    PAGE_16KB = SIZE_16KB,
+    PAGE_1MB = SIZE_1MB,
+    PAGE_16MB = SIZE_16MB,
 } pg_typ_t;
 
 pagetable_t* kalloc_pt();
 void vm_map(pagetable_t* pt, uintptr_t va, uintptr_t pa, pg_typ_t typ);
 void vm_unmap(pagetable_t* pt, uintptr_t va);
 void vm_set_pt(pagetable_t* pt);
+void vm_flushem();

@@ -19,7 +19,7 @@ hello.elf: $(OBJ)
 	$(LD) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 exostall: hello.bin
-	../tools/exify/exify.sh hello.bin > ../kern/prog.c
+	../tools/exify/exify.sh hello.bin hello > ../kern/prog.c
 
 clean:
 	rm -f *.d *.list *.o *.elf *.bin

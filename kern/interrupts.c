@@ -93,6 +93,7 @@ void __attribute__((interrupt("ABORT"))) vec_prefetch_abort() {
     panic_unhandled("prefetch_abort");
 }
 void __attribute__((interrupt("ABORT"))) vec_data_abort() {
+    printf("Faulted on 0x%x\n", get_dfar());
     panic_unhandled("data_abort");
 }
 void __attribute__((interrupt("IRQ"))) vec_irq() {

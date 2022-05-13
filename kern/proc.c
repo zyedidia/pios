@@ -8,7 +8,8 @@ static pid_t id;
 proc_t procs[NPROC];
 proc_t* curproc;
 
-void proc_new(proc_t* proc, uint8_t* code, size_t codesz) {
+proc_t *proc_new(uint8_t* code, size_t codesz) {
+    proc_t *proc = &procs[id];
     proc->id = id++;
     proc->pt = kalloc_pt();
     proc->state = PROC_RUNNABLE;
@@ -29,6 +30,7 @@ void proc_new(proc_t* proc, uint8_t* code, size_t codesz) {
         vm_map(proc->pt, PROC_ENTRY + n, ka2pa((uintptr_t) pgs + n), PAGE_4KB);
     }
     proc->regs.pc = PROC_ENTRY;
+    return proc;
 }
 
 void __attribute__((noreturn)) proc_run(proc_t* proc) {
