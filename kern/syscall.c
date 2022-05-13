@@ -4,12 +4,13 @@
 #include "syscall_list.h"
 #include "vm.h"
 #include "proc.h"
+#include "kmalloc.h"
 
 unsigned syscall_alloc_page(uint32_t page_addr, uint32_t page_size) {
     assert(page_addr == SYSCALL_ARG_ANY_PAGE);
     assert(page_size == SYSCALL_ARG_PAGE_1MB);
     printf("Got alloc page syscall for any page, 1MB long.\n");
-    uintptr_t ptr = (uintptr_t)ka2pa(kmalloc(1024 * 1024));
+    uintptr_t ptr = (uintptr_t)ka2pa((uintptr_t)kmalloc(1024 * 1024));
     printf("Giving back physical page %x\n", ptr);
     return ptr;
 }
@@ -18,14 +19,14 @@ unsigned syscall_vm_map(uint32_t va,
                         uint32_t pa,
                         uint32_t flags,
                         uint32_t page_size) {
-    panic("syscall_vm_map\n");
+    assert(flags == 0);
+    assert(page_size == SYSCALL_ARG_PAGE_1MB);
+    printf("Got VM_MAP syscall for va=%lx, pa=%lx, flags=%lx, 1MB.\n",
+           va, pa, flags);
+    // TODO(masot): FLAGS
+    vm_map(curproc->pt, va, pa, PAGE_1MB);
+    vm_flushem();
     return 0;
-    /* assert(page_size == SYSCALL_ARG_PAGE_1MB); */
-    /* printf("Got VM_MAP syscall for va=%lx, pa=%lx, flags=%lx, 1MB.\n", */
-    /*        va, pa, flags); */
-    /* vm_map_section_into_early_pt(va, pa); */
-    /* vm_flushem(); */
-    /* return 0; */
 }
 
 void syscall(regs_t* regs) {
@@ -51,4 +52,5 @@ void syscall(regs_t* regs) {
             panic("unhandled syscall %d\n", sysno);
             break;
     }
+    regs->pc += 4;
 }

@@ -44,5 +44,7 @@ typedef struct {
     proc_state_t state;
 } proc_t;
 
-void proc_new(proc_t* proc, uint8_t* code, size_t codesz);
+extern proc_t* curproc;
+
+proc_t *proc_new(uint8_t* code, size_t codesz);
 void proc_run(proc_t* proc);

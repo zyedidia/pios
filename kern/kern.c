@@ -41,11 +41,10 @@ void kernel_start() {
 
     printf("kernel booted\n");
 
-    proc_t p_basic;
-    extern unsigned char prog_basic[];
-    extern size_t prog_basic_sz;
-    proc_new(&p_basic, &prog_basic[0], prog_basic_sz);
-    proc_run(&p_basic);
+    extern unsigned char prog_hello[];
+    extern size_t prog_hello_sz;
+    proc_t *p_hello = proc_new(&prog_hello[0], prog_hello_sz);
+    proc_run(p_hello);
 
     reboot();
     return;

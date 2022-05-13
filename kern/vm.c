@@ -58,3 +58,11 @@ void vm_set_pt(pagetable_t* pt) {
     sys_invalidate_tlb();
     sys_clean_and_invalidate_cache();
 }
+
+void vm_flushem() {
+    sys_clean_and_invalidate_cache();
+    sys_flush_btb();
+    sys_invalidate_tlb();
+    sys_prefetch_flush();
+    dsb();
+}
