@@ -102,8 +102,17 @@ void __attribute__((interrupt("ABORT"))) vec_data_abort() {
     printf("!!!!!!! LR was: %x\n", lr);
     panic_unhandled("data_abort");
 }
-void __attribute__((interrupt("IRQ"))) vec_irq() {
-    panic_unhandled("irq");
+#include "proc.h"
+#include "timer.h"
+void vec_irq(regs_t *regs) {
+    dev_barrier();
+    if (!timer_has_irq()) return;
+
+    proc_scheduler_irq(regs);
+
+    dev_barrier();
+    timer_clear_irq();
+    dev_barrier();
 }
 void __attribute__((interrupt("FIQ"))) vec_fiq() {
     panic_unhandled("fiq");

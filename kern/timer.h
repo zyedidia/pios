@@ -1,6 +1,8 @@
 #pragma once
 
 #include "sys.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 static inline void timer_init() {
     asm volatile("mcr p15, 0, %0, c15, c12, 0" ::"r"(1));
@@ -34,3 +36,7 @@ static inline void delay_us(unsigned us) {
 static inline void delay_ms(unsigned ms) {
     delay_us(ms * 1000);
 }
+
+void timer_irq_load(uint32_t load);
+bool timer_has_irq();
+void timer_clear_irq();

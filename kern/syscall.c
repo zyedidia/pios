@@ -51,9 +51,11 @@ void syscall(regs_t *regs) {
     case SYSCALL_VM_MAP:
         regs->r0 = syscall_vm_map(regs->r1, regs->r2, regs->r3, regs->r4);
         break;
+    case SYSCALL_GET_PID:
+        regs->r0 = curproc->id;
+        break;
     default:
         panic("unhandled syscall %d\n", sysno);
         break;
     }
-    regs->pc += 4;
 }

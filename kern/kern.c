@@ -10,6 +10,7 @@
 #include "sys.h"
 #include "uart.h"
 #include "vm.h"
+#include "timer.h"
 
 void reboot() {
     printf("DONE!!!\n");
@@ -38,15 +39,23 @@ void kernel_start() {
 
     uart_init(115200);
     init_printf(NULL, uart_putc);
-    irq_init();
+
     kmalloc_init();
+
+    irq_init();
+    irq_enable(BASIC_TIMER_IRQ);
+    timer_irq_load(0x1000);
 
     printf("kernel booted\n");
 
-    extern unsigned char _binary_hello_bin_start;
-    extern unsigned char _binary_hello_bin_end;
-    proc_t *p_hello = proc_new(&_binary_hello_bin_start, (size_t) (&_binary_hello_bin_end - &_binary_hello_bin_start));
-    proc_run(p_hello);
+    extern unsigned char _binary_pidos_bin_start;
+    extern unsigned char _binary_pidos_bin_end;
+
+    proc_t *p_pidos_1 = proc_new(&_binary_pidos_bin_start, (size_t) (&_binary_pidos_bin_end - &_binary_pidos_bin_start));
+    proc_new(&_binary_pidos_bin_start, (size_t) (&_binary_pidos_bin_end - &_binary_pidos_bin_start));
+
+    // TODO/NOTE(masot): Currently, proc_run enables IRQs
+    proc_run(p_pidos_1);
 
     reboot();
     return;

@@ -48,3 +48,4 @@ extern proc_t *curproc;
 
 proc_t *proc_new(uint8_t *code, size_t codesz);
 void proc_run(proc_t *proc);
+void proc_scheduler_irq(regs_t *regs);
