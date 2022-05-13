@@ -42,10 +42,31 @@ void __attribute__((noreturn)) proc_run(proc_t *proc) {
     vm_set_pt(proc->pt);
     curproc = proc;
 
+    enable_interrupts(); // TODO: Set this in the SPSR
     // NOTE: To use SPSR, need to be sure we are *NOT* in user/system mode.
     // TODO(masot): add an assert like that
     set_spsr((get_cpsr() & ~0b11111) | 0b10000);
     asm volatile("ldm %0, {r0-r15}^" : : "r"(proc));
     while (1) {
     }
+}
+
+thread_id = 0;
+
+void swippityswap(regs_t *live_state, proc_t *new_thread, proc_t *old_thread) {
+    memcpy(&(old_thread->regs), live_state, sizeof(regs_t));
+    memcpy(live_state, &(new_thread->regs), sizeof(regs_t));
+}
+
+
+void proc_scheduler_irq(regs_t *regs) {
+    pid_t curr_pid = curproc->id,
+          next_pid = (curr_pid + 1) % id;
+
+    swippityswap(regs, &(procs[next_pid]), &(procs[curr_pid]));
+
+    curproc->state = PROC_RUNNABLE;
+    curproc = &(procs[next_pid]);
+    curproc->state = PROC_RUNNING;
+    vm_set_pt(curproc->pt);
 }

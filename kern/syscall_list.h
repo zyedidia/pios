@@ -4,6 +4,7 @@
 #define SYSCALL_ALLOC_PAGE   1
 #define SYSCALL_DEALLOC_PAGE 2
 #define SYSCALL_VM_MAP       3
+#define SYSCALL_GET_PID      4
 
 // NOTE: DO NOT CHANGE THESE without changing vm.h
 #define SYSCALL_ARG_ANY_PAGE 0
