@@ -83,11 +83,7 @@ void kmalloc_init() {
     uintptr_t heap_start = ka2pa((uintptr_t) &_kheap_start);
     for (uintptr_t pa = 0; pa < MEMSIZE_PHYSICAL; pa += PAGESIZE) {
         uintptr_t pn = pagenum(pa);
-        if (pa < heap_start) {
-            pages[pn].order = MIN_ORDER;
-            continue;
-        }
-        pages[pn].free = true;
+        pages[pn].free = pa >= heap_start;
         pages[pn].order = MIN_ORDER;
 
         unsigned order = pages[pn].order;
