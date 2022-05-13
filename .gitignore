@@ -13,3 +13,4 @@ tools/piprog/piprog
 tools/vcd/vcd
 tools/rduart/rduart
 tags
+.deps
