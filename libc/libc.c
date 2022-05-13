@@ -100,6 +100,50 @@ int strcmp(const char* a, const char* b) {
     }
 }
 
+char* strtok(char* str, const char* delim) {
+    unsigned int is_delim(char c, const char *delim) {
+        while (*delim != '\0') {
+            if (c == *delim)
+                return 1;
+            delim++;
+        }
+        return 0;
+    }
+
+    static char *backup;
+    if (!str)
+        str = backup;
+    if (!str)
+        return NULL;
+    // handle beginning of the string containing delims
+    while (1) {
+        if (is_delim(*str, delim)) {
+            str++;
+            continue;
+        }
+        if (*str == '\0')  {
+            // we've reached the end of the string
+            return NULL;
+        }
+        break;
+    }
+    char *ret = str;
+    while (1) {
+        if (*str == '\0') {
+            /*end of the input string and
+            next exec will return NULL*/
+            backup = str;
+            return ret;
+        }
+        if (is_delim(*str, delim)) {
+            *str = '\0';
+            backup = str + 1;
+            return ret;
+        }
+        str++;
+    }
+}
+
 size_t strlen(const char* p) {
     size_t ret;
     for (ret = 0; p[ret]; ++ret)

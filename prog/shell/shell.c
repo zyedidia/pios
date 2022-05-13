@@ -1,6 +1,7 @@
 #include "pios.h"
 
 #define BUFSIZE 32
+#define TOKEN_DELIM " \t\r\n\a"
 
 char *read_line() {
     int c, i = 0;
@@ -21,8 +22,23 @@ char *read_line() {
     }
 }
 
-int execute(char *line) {
-    if (strcmp(line, "exit") == 0) {
+char **split_line(char *line) {
+    int i = 0;
+    char *token;
+    char **tokens = kmalloc(sizeof(char*) * BUFSIZE);
+
+    token = strtok(line, TOKEN_DELIM);
+    while (token != NULL) {
+        tokens[i++] = token;
+        token = strtok(NULL, TOKEN_DELIM);
+    }
+    tokens[i] = NULL;
+    return tokens;
+}
+
+int execute(char **args) {
+    char *cmd = args[0];
+    if (strcmp(cmd, "exit") == 0) {
         return 0;
     } else {
         return 1;
@@ -31,14 +47,17 @@ int execute(char *line) {
 
 void loop() {
     char *line;
+    char **args;
     int status;
 
     do {
         printf("\r$ ");
         line = read_line();
-        status = execute(line);
+        args = split_line(line);
+        status = execute(args);
 
         kfree(line);
+        kfree(args);
     } while (status);
 }
 
