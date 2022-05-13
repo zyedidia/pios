@@ -34,6 +34,7 @@ void syscall(regs_t* regs) {
             printf("Exiting with exit code %lu\n", regs->r1);
             reboot();
             break;
+
         case SYSCALL_ALLOC_PAGE:
             regs->r0 = syscall_alloc_page(regs->r1, regs->r2);
             break;
