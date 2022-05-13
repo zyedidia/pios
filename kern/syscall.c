@@ -30,7 +30,7 @@ unsigned syscall_vm_map(uint32_t va,
     dprintf("Got VM_MAP syscall for va=%lx, pa=%lx, flags=%lx, 1MB.\n", va, pa,
             flags);
     // TODO(masot): FLAGS
-    vm_map(curproc->pt, va, pa, page_size, RW_USER);
+    vm_map(curproc->pt, va, pa, page_size, AP_RW);
     vm_flushem();
     return 0;
 }
