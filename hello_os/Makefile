@@ -1,10 +1,8 @@
 include ../defs.mk
 
-O ?= s
-
 CFLAGS += -MMD
 
-MEMMAP = $(PIOS)/hello_os/memmap.ld
+MEMMAP = memmap.ld
 INCLUDE = -I$(KERN) -I$(PIOS)
 CFLAGS += $(INCLUDE)
 ASFLAGS += $(INCLUDE)
@@ -18,8 +16,10 @@ all: hello.bin
 hello.elf: $(OBJ)
 	$(LD) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-exostall: hello.bin
-	../tools/exify/exify.sh hello.bin hello > ../kern/prog.c
+$(PIOS)/kern/p-hello.o: hello.bin
+	$(LD) -r -b binary -o $@ $<
+
+exostall: $(PIOS)/kern/p-hello.o
 
 clean:
 	rm -f *.d *.list *.o *.elf *.bin

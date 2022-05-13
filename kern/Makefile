@@ -48,4 +48,10 @@ qemu-gdb: kern.elf
 format:
 	clang-format -i $(KERN_CSRC) $(KERN_HSRC)
 
+p-basic.o:
+	make -C $(PIOS)/prog/basic exostall
+
+p-hello.o:
+	make -C $(PIOS)/hello_os exostall
+
 .PHONY: format all install

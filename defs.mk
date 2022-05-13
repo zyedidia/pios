@@ -11,6 +11,8 @@ QEMU = qemu-system-arm
 BOARD = raspi1ap
 GDB = gdb-multiarch
 
+O ?= s
+
 LIBGCC = $(shell $(CC) --print-file-name=libgcc.a)
 
 CPU = arm1176jzf-s
