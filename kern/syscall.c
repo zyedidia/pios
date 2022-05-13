@@ -2,7 +2,6 @@
 
 #include "kern.h"
 #include "syscall_list.h"
-#include "simple_malloc.h"
 #include "vm.h"
 #include "proc.h"
 
