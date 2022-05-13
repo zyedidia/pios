@@ -57,10 +57,8 @@ void swippityswap(regs_t *live_state, proc_t *new_thread, proc_t *old_thread) {
     memcpy(live_state, &(new_thread->regs), sizeof(regs_t));
 }
 
-
 void proc_scheduler_irq(regs_t *regs) {
-    pid_t curr_pid = curproc->id,
-          next_pid = (curr_pid + 1) % id;
+    pid_t curr_pid = curproc->id, next_pid = (curr_pid + 1) % id;
 
     swippityswap(regs, &(procs[next_pid]), &(procs[curr_pid]));
 

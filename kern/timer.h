@@ -1,8 +1,8 @@
 #pragma once
 
-#include "sys.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include "sys.h"
 
 static inline void timer_init() {
     asm volatile("mcr p15, 0, %0, c15, c12, 0" ::"r"(1));

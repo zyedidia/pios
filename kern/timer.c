@@ -26,7 +26,7 @@ typedef struct {
 #define TIMER_CTRL_DISABLE (0 << 7)
 
 #define pa2ka(pa) (((pa) | (1UL << 31)))
-static volatile timer_t* const timer = (timer_t*) pa2ka(0x2000b400);
+static volatile timer_t *const timer = (timer_t *) pa2ka(0x2000b400);
 
 void timer_irq_load(uint32_t load) {
     timer->load = load;

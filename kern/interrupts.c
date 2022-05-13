@@ -106,7 +106,8 @@ void __attribute__((interrupt("ABORT"))) vec_data_abort() {
 #include "timer.h"
 void vec_irq(regs_t *regs) {
     dev_barrier();
-    if (!timer_has_irq()) return;
+    if (!timer_has_irq())
+        return;
 
     proc_scheduler_irq(regs);
 

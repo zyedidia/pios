@@ -8,9 +8,9 @@
 #include "ksan.h"
 #include "proc.h"
 #include "sys.h"
+#include "timer.h"
 #include "uart.h"
 #include "vm.h"
-#include "timer.h"
 
 void reboot() {
     printf("DONE!!!\n");
@@ -52,14 +52,16 @@ void kernel_start() {
 #ifdef PIDOS
     extern uint8_t _binary_pidos_bin_start;
     extern uint8_t _binary_pidos_bin_end;
-    proc_t *p_pidos_1 = proc_new(&_binary_pidos_bin_start, &_binary_pidos_bin_end);
+    proc_t *p_pidos_1 =
+        proc_new(&_binary_pidos_bin_start, &_binary_pidos_bin_end);
     proc_new(&_binary_pidos_bin_start, &_binary_pidos_bin_end);
-    enable_interrupts(); // TODO: Set this in the SPSR
+    enable_interrupts();  // TODO: Set this in the SPSR
     proc_run(p_pidos_1);
 #else
     extern uint8_t _binary_basic_bin_start;
     extern uint8_t _binary_basic_bin_end;
-    proc_t* p_basic = proc_new(&_binary_basic_bin_start, &_binary_basic_bin_end);
+    proc_t *p_basic =
+        proc_new(&_binary_basic_bin_start, &_binary_basic_bin_end);
     proc_run(p_basic);
 #endif
 
