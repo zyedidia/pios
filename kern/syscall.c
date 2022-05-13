@@ -42,19 +42,15 @@ void syscall(regs_t *regs) {
         printf("Exiting with exit code %lu\n", regs->r1);
         reboot();
         break;
-
     case SYSCALL_ALLOC_PAGE:
         regs->r0 = syscall_alloc_page(regs->r1, regs->r2);
         break;
-
     case SYSCALL_DEALLOC_PAGE:
         panic("SYSCALL_DEALLOC_PAGE");
         break;
-
     case SYSCALL_VM_MAP:
         regs->r0 = syscall_vm_map(regs->r1, regs->r2, regs->r3, regs->r4);
         break;
-
     default:
         panic("unhandled syscall %d\n", sysno);
         break;
