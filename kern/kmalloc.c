@@ -67,16 +67,17 @@ static free_page_t *pn_to_free(uintptr_t pn) {
     return (free_page_t *) pa2ka(pageaddr(pn));
 }
 
-extern char _kheap_start;
+extern char _kheap_start, _boot_start;
 
 // Initialize everything needed for kmalloc
 void kmalloc_init() {
     // Iterate through all heap memory, mark as free, and coalesce blocks
     // together if possible
+    uintptr_t text_start = ka2pa((uintptr_t) &_boot_start);
     uintptr_t heap_start = ka2pa((uintptr_t) &_kheap_start);
     for (uintptr_t pa = 0; pa < MEMSIZE_PHYSICAL; pa += PAGESIZE) {
         uintptr_t pn = pagenum(pa);
-        pages[pn].free = pa >= heap_start;
+        pages[pn].free = pa >= heap_start || pa < text_start;
         pages[pn].order = MIN_ORDER;
 
         unsigned order = pages[pn].order;
