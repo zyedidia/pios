@@ -11,6 +11,7 @@
 #include "timer.h"
 #include "uart.h"
 #include "vm.h"
+#include "libc/rand.h"
 
 void reboot() {
     printf("DONE!!!\n");
@@ -36,9 +37,10 @@ void kernel_start() {
 #endif
 
     sys_enable_cache();
-
     uart_init(115200);
     init_printf(NULL, uart_putc);
+
+    rand_seed(timer_cycles());
 
     kmalloc_init();
 

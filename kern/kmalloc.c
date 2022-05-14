@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "libc/rand.h"
 #include "kern.h"
 #include "kmalloc.h"
 #include "ksan.h"
@@ -112,7 +113,7 @@ void kmalloc_init() {
 
 // Allocate and returns a pointer to at least `sz` contiguous bytes of memory.
 // Returns `NULL` if `sz == 0` or on failure.
-void *kmalloc(size_t sz) {
+static void *kmalloc_internal(size_t sz) {
     if (sz == 0) {
         return NULL;
     }
@@ -172,7 +173,7 @@ void *kmalloc(size_t sz) {
 
 // Free a pointer previously returned by `kalloc`. Does nothing if `ptr ==
 // NULL`.
-void kfree(void *ptr) {
+static void kfree_internal(void *ptr) {
     if (!ptr || (char *) ptr < &_kheap_start) {
         return;
     }
@@ -212,4 +213,27 @@ void kfree(void *ptr) {
     }
 
     ll_free_insert(pn_to_free(pn), order);
+}
+
+#ifdef RANDOMIZE_KMALLOC
+void *kmalloc(size_t size) {
+    unsigned r = rand16() % 8;
+    void *ptrs[r];
+    for (unsigned i = 0; i < r; i++) {
+        ptrs[i] = kmalloc_internal(size);
+    }
+    void *p = kmalloc_internal(size);
+    for (unsigned i = 0; i < r; i++) {
+        kfree(ptrs[i]);
+    }
+    return p;
+}
+#else
+void *kmalloc(size_t size) {
+    return kmalloc_internal(size);
+}
+#endif
+
+void kfree(void *p) {
+    kfree_internal(p);
 }

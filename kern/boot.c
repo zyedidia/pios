@@ -4,6 +4,7 @@
 #include "kern.h"
 #include "sys.h"
 #include "vm.h"
+#include "timer.h"
 
 static pte_1mb_t __attribute__((aligned(1 << 14))) kernel_pagetable[4096];
 
@@ -70,6 +71,7 @@ static void vm_kernel_enable() {
 }
 
 void cstart() {
+    timer_init();
     extern int _kbss_start, _kbss_end;
     int *bss = (int *) ka2pa((uintptr_t) &_kbss_start);
     int *bss_end = (int *) ka2pa((uintptr_t) &_kbss_end);

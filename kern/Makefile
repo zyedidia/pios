@@ -16,6 +16,10 @@ include ../defs.mk
 
 CFLAGS += $(DEPCFLAGS)
 
+ifneq ($(RANDOMIZE),)
+CFLAGS += -DRANDOMIZE_KMALLOC
+endif
+
 INCLUDE = -I$(KERN) -I$(PIOS)
 CFLAGS += $(INCLUDE)
 ASFLAGS += $(INCLUDE)

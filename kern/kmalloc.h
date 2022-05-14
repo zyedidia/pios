@@ -7,7 +7,6 @@
 
 void kmalloc_init();
 void *kmalloc(size_t size);
-void *kmalloc_aligned(size_t size, size_t align);
 void kfree(void *p);
 
 static inline uintptr_t pagenum(uintptr_t pa) {
