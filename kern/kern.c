@@ -13,6 +13,9 @@
 #include "vm.h"
 #include "libc/rand.h"
 
+/* #define PIDOS */
+/* #define HELLOOS */
+
 void reboot() {
     printf("DONE!!!\n");
     uart_tx_flush();
@@ -59,6 +62,12 @@ void kernel_start() {
     proc_new(&_binary_pidos_bin_start, &_binary_pidos_bin_end);
     enable_interrupts();  // TODO: Set this in the SPSR
     proc_run(p_pidos_1);
+#elif defined(HELLOOS)
+    extern uint8_t _binary_hello_bin_start;
+    extern uint8_t _binary_hello_bin_end;
+    proc_t *p_hello =
+        proc_new(&_binary_hello_bin_start, &_binary_hello_bin_end);
+    proc_run(p_hello);
 #else
     extern uint8_t _binary_basic_bin_start;
     extern uint8_t _binary_basic_bin_end;
