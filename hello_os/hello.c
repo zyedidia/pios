@@ -20,7 +20,7 @@ unsigned main() {
     printf("My stack appears to be at %x\n", sp);
 
     volatile unsigned *ker_val = (void*)0x80000005;
-    printf("Trying to access a kernel byte at 0x%x...\n", ker_val);
+    printf("Trying to access a kernel byte at 0x%x...\n", (unsigned)ker_val);
     printf("Value: %x\n", *ker_val);
 
     return 24;

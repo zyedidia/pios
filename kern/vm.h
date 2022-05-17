@@ -113,6 +113,7 @@ void vm_map(pagetable_t *pt,
             uintptr_t pa,
             pg_typ_t typ,
             ap_t prot);
+int vm_is_mapped(pagetable_t *pt, uintptr_t va);
 void vm_unmap(pagetable_t *pt, uintptr_t va);
 void vm_set_pt(pagetable_t *pt);
 void vm_flushem();

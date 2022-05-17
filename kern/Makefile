@@ -61,4 +61,7 @@ p-hello.o:
 p-pidos.o:
 	make -C $(PIOS)/pid_os exostall
 
-.PHONY: format all install p-basic.o p-hello.o p-pidos.o
+p-shell.o:
+	make -C $(PIOS)/shell_os exostall
+
+.PHONY: format all install p-basic.o p-hello.o p-pidos.o p-shell.o

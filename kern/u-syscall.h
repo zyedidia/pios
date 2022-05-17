@@ -2,35 +2,63 @@
 
 #include <stdint.h>
 
-#include "syscall.h"
+// #include "syscall.h"
 
-static inline uintptr_t syscall_0(int sysno) {
-    register uintptr_t r0 asm("r0") = sysno;
+static inline uint32_t syscall_0(int sysno) {
+    register uint32_t r0 asm("r0") = sysno;
     asm volatile("swi 0" : "+r"(r0) : : "memory");
     return r0;
 }
-static inline uintptr_t syscall_1(int sysno, uintptr_t arg0) {
-    register uintptr_t r0 asm("r0") = sysno;
-    register uintptr_t r1 asm("r1") = arg0;
+static inline uint32_t syscall_1(int sysno, uint32_t arg0) {
+    register uint32_t r0 asm("r0") = sysno;
+    register uint32_t r1 asm("r1") = arg0;
     asm volatile("swi 0" : "+r"(r0), "+r"(r1) : : "memory");
     return r0;
 }
-static inline uintptr_t syscall_2(int sysno, uintptr_t arg0, uintptr_t arg1) {
-    register uintptr_t r0 asm("r0") = sysno;
-    register uintptr_t r1 asm("r1") = arg0;
-    register uintptr_t r2 asm("r2") = arg1;
+static inline uint32_t syscall_2(int sysno, uint32_t arg0, uint32_t arg1) {
+    register uint32_t r0 asm("r0") = sysno;
+    register uint32_t r1 asm("r1") = arg0;
+    register uint32_t r2 asm("r2") = arg1;
     asm volatile("swi 0" : "+r"(r0), "+r"(r1), "+r"(r2) : : "memory");
     return r0;
 }
-static inline uintptr_t syscall_3(int sysno,
-                                  uintptr_t arg0,
-                                  uintptr_t arg1,
-                                  uintptr_t arg2) {
-    register uintptr_t r0 asm("r0") = sysno;
-    register uintptr_t r1 asm("r1") = arg0;
-    register uintptr_t r2 asm("r2") = arg1;
-    register uintptr_t r3 asm("r3") = arg2;
+static inline uint32_t syscall_3(int sysno,
+                                  uint32_t arg0,
+                                  uint32_t arg1,
+                                  uint32_t arg2) {
+    register uint32_t r0 asm("r0") = sysno;
+    register uint32_t r1 asm("r1") = arg0;
+    register uint32_t r2 asm("r2") = arg1;
+    register uint32_t r3 asm("r3") = arg2;
     asm volatile("swi 0" : "+r"(r0), "+r"(r1), "+r"(r2), "+r"(r3) : : "memory");
+    return r0;
+}
+static inline uint32_t syscall_4(int sysno,
+                                  uint32_t arg0,
+                                  uint32_t arg1,
+                                  uint32_t arg2,
+                                  uint32_t arg3) {
+    register uint32_t r0 asm("r0") = sysno;
+    register uint32_t r1 asm("r1") = arg0;
+    register uint32_t r2 asm("r2") = arg1;
+    register uint32_t r3 asm("r3") = arg2;
+    register uint32_t r4 asm("r4") = arg3;
+    asm volatile("swi 0" : "+r"(r0), "+r"(r1), "+r"(r2), "+r"(r3), "+r"(r4) : : "memory");
+    return r0;
+}
+static inline uint32_t syscall_5(int sysno,
+                                  uint32_t arg0,
+                                  uint32_t arg1,
+                                  uint32_t arg2,
+                                  uint32_t arg3,
+                                  uint32_t arg4) {
+    register uint32_t r0 asm("r0") = sysno;
+    register uint32_t r1 asm("r1") = arg0;
+    register uint32_t r2 asm("r2") = arg1;
+    register uint32_t r3 asm("r3") = arg2;
+    register uint32_t r4 asm("r4") = arg3;
+    register uint32_t r5 asm("r5") = arg4;
+    asm volatile("swi 0" : "+r"(r0), "+r"(r1), "+r"(r2), "+r"(r3), "+r"(r4), "+r"(r5) : : "memory");
     return r0;
 }
 
@@ -44,14 +72,14 @@ static inline void exit() {
 // allocated, or if there are no available pages.
 static inline void *alloc_page(int i) {
     // Mark which process allocated the page.
-    return syscall_1(SYSCALL_ALLOC_PAGE, i);
+    return (void*)syscall_1(SYSCALL_ALLOC_PAGE, i);
 }
 
 // Release the allocated physical page. The caller needs to have been previously
 // allocated the physical page and not already deallocated it. Returns 0 if
 // successful, otherwise -1.
 static inline int dealloc_page(void *addr) {
-    return syscall_1(SYSCALL_DEALLOC_PAGE, addr);
+    return (int)syscall_1(SYSCALL_DEALLOC_PAGE, (uint32_t)addr);
 }
 
 // Map the virtual address to the physical address. The caller must have been

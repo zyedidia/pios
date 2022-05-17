@@ -68,6 +68,12 @@ void kernel_start() {
     proc_t *p_hello =
         proc_new(&_binary_hello_bin_start, &_binary_hello_bin_end);
     proc_run(p_hello);
+#elif defined(SHELLOS)
+    extern uint8_t _binary_shell_bin_start;
+    extern uint8_t _binary_shell_bin_end;
+    proc_t *p_shell =
+        proc_new(&_binary_shell_bin_start, &_binary_shell_bin_end);
+    proc_run(p_shell);
 #else
     extern uint8_t _binary_basic_bin_start;
     extern uint8_t _binary_basic_bin_end;

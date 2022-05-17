@@ -19,6 +19,13 @@ static void init_second_level(pde_t *pde) {
     pde->tag = 0b01;
 }
 
+// TODO(masot): only report if user mapped?
+int vm_is_mapped(pagetable_t *pt, uintptr_t va) {
+    unsigned idx = va >> 20;
+    l1pte_t *l1pte = &pt->entries[idx];
+    return l1pte->pde.tag != 0;
+}
+
 void vm_map(pagetable_t *pt,
             uintptr_t va,
             uintptr_t pa,
@@ -28,10 +35,13 @@ void vm_map(pagetable_t *pt,
     l1pte_t *l1pte = &pt->entries[idx];
 
     // TODO: allow remapping
-    assert(l1pte->pde.tag == 0);
+    if (typ == PAGE_1MB) {
+        assert(l1pte->pde.tag == 0);
+    }
 
     switch (typ) {
     case PAGE_UNMAPPED:
+        // TODO: 1MB?
         l1pte->pde.tag = 0b00;
         break;
     case PAGE_1MB:
@@ -46,6 +56,7 @@ void vm_map(pagetable_t *pt,
         pte_small_t *l2pt =
             (pte_small_t *) pa2ka((uintptr_t) l1pte->pde.addr << 10);
         pte_small_t *l2pte = &l2pt[bits_get(va, 12, 19)];
+        // TODO(masot): assert(l2pte->tag == 0);
         l2pte->addr = pa >> 12;
         l2pte->ap = prot;
         l2pte->sz = 1;
