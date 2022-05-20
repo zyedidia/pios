@@ -6,9 +6,11 @@
 *.so
 *.vcd
 .*.sw*
+kern/p-*.c
 /boot/firmware
 trace.txt
 tools/piprog/piprog
 tools/vcd/vcd
 tools/rduart/rduart
 tags
+.deps

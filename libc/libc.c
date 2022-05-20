@@ -1,18 +1,18 @@
 #include <stddef.h>
 
-void* memchr(const void* s, int c, size_t n) {
-    const unsigned char* sp = s;
+void *memchr(const void *s, int c, size_t n) {
+    const unsigned char *sp = s;
 
     while (n--) {
         if (*sp == (unsigned char) c)
-            return (void*) sp;
+            return (void *) sp;
         sp++;
     }
 
     return NULL;
 }
 
-int memcmp(const void* s1, const void* s2, size_t n) {
+int memcmp(const void *s1, const void *s2, size_t n) {
     const unsigned char *c1 = s1, *c2 = s2;
     int d = 0;
 
@@ -25,9 +25,9 @@ int memcmp(const void* s1, const void* s2, size_t n) {
     return d;
 }
 
-void* memcpy(void* dst, const void* src, size_t n) {
-    const char* p = src;
-    char* q = dst;
+void *memcpy(void *dst, const void *src, size_t n) {
+    const char *p = src;
+    char *q = dst;
     while (n--) {
         *q++ = *p++;
     }
@@ -35,9 +35,9 @@ void* memcpy(void* dst, const void* src, size_t n) {
     return dst;
 }
 
-void* memmove(void* dst, const void* src, size_t count) {
-    char* a = dst;
-    const char* b = src;
+void *memmove(void *dst, const void *src, size_t count) {
+    char *a = dst;
+    const char *b = src;
 
     if (src == dst)
         return dst;
@@ -55,8 +55,8 @@ void* memmove(void* dst, const void* src, size_t count) {
     return dst;
 }
 
-void* memset(void* dst, int c, size_t n) {
-    char* q = dst;
+void *memset(void *dst, int c, size_t n) {
+    char *q = dst;
 
     while (n--) {
         *q++ = c;
@@ -65,9 +65,9 @@ void* memset(void* dst, int c, size_t n) {
     return dst;
 }
 
-void memswap(void* m1, void* m2, size_t n) {
-    char* p = m1;
-    char* q = m2;
+void memswap(void *m1, void *m2, size_t n) {
+    char *p = m1;
+    char *q = m2;
     char tmp;
 
     while (n--) {
@@ -90,7 +90,7 @@ static inline size_t newgap(size_t gap) {
     return gap;
 }
 
-int strcmp(const char* a, const char* b) {
+int strcmp(const char *a, const char *b) {
     while (1) {
         unsigned char ac = *a, bc = *b;
         if (ac == 0 || bc == 0 || ac != bc) {
@@ -100,7 +100,7 @@ int strcmp(const char* a, const char* b) {
     }
 }
 
-size_t strlen(const char* p) {
+size_t strlen(const char *p) {
     size_t ret;
     for (ret = 0; p[ret]; ++ret)
         ;

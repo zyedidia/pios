@@ -8,8 +8,12 @@ OBJCOPY = $(PREFIX)-objcopy
 OBJDUMP = $(PREFIX)-objdump
 
 QEMU = qemu-system-arm
+# Custom qemu with dev barrier checking
+# QEMU = /home/zyedidia/programming/qemu-dev/build/qemu-system-arm
 BOARD = raspi1ap
 GDB = gdb-multiarch
+
+O ?= s
 
 LIBGCC = $(shell $(CC) --print-file-name=libgcc.a)
 
@@ -18,7 +22,7 @@ ARCH = armv6zk
 
 PIOS ?= $(shell git rev-parse --show-toplevel)
 
-CFLAGS = -O$(O) -g -Wall -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU) -Wa,-march=$(ARCH)
+CFLAGS = -O$(O) -g -Wall -Werror -nostdlib -nostartfiles -ffreestanding -Wa,-mcpu=$(CPU) -Wa,-march=$(ARCH)
 ASFLAGS = -mcpu=$(CPU) -march=$(ARCH)
 LDFLAGS = -T $(MEMMAP)
 LDLIBS = $(LIBGCC)
@@ -29,13 +33,13 @@ else
 	ASAN_FLAGS = -DSANITIZE=0
 endif
 
-$(PIOS_OBJ_NOSAN): ASAN_FLAGS := -DSANITIZE=$(SANITIZE)
+$(KERN_OBJ_NOSAN): ASAN_FLAGS := -DSANITIZE=$(SANITIZE)
 
-%.o: %.c
+%.o: %.c $(BUILDSTAMP)
 	$(CC) $(CFLAGS) $(ASAN_FLAGS) $< -c -o $@
 
 %.o: %.s
-	$(CPP) $< | $(AS) $(ASFLAGS) -c -o $@
+	$(CPP) $(CPPFLAGS) $< | $(AS) $(ASFLAGS) -c -o $@
 
 %.bin: %.elf
 	$(OBJCOPY) $< -O binary $@
